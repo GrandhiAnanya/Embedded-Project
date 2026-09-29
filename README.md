@@ -20,15 +20,17 @@ ESP32-based smart remote with tactile buttons, WS2812B LED feedback, and buzzer 
 | Item | Qty | Notes | Approx. ₹ |
 |------|-----|-------|-----------|
 | ESP32 DevKit V1 (30-pin) | 1 (2 is safer) | CP2102 or CH340 USB chip | 450–600 each |
-| Tactile push buttons, 12mm (with caps) | 10–12 | 7–9 needed + spares | 50–100 |
-| WS2812B LEDs (individual breakout / 5050) or 8–10 LED strip | 10 | Strip is easier to start. Cut or use separate later | 150–300 |
+| Push buttons 12mm with caps + icons | 10–12 | 9 needed (Power, YouTube, Netflix, Back, Home, Vol-, Vol+, Up, Down) + spares | 50–100 |
+| WS2812B LEDs (5mm individual / breakout) | 10 | 9 needed, 1 per button glued above button. Cut strip pieces also work | 150–300 |
 | Passive buzzer | 1–2 | Passive = different tones for correct/wrong. Active = one pitch only | 20–40 |
 | Breadboard (full size, 830 pt) | 1–2 | Half-size is too cramped | 100–150 |
 | Jumper wires (M-M, M-F, F-F pack) | 1 set each | — | 150 |
 | 330–470 Ω resistor, 1000 µF 6.3V+ capacitor | 1 each (buy assortment) | LED data + power protection | 50 |
 | Micro-USB or USB-C data cable | 1 | Must be **data**, not charge-only | 100 |
 | Optional: 74AHCT125 level shifter | 1 | Only if LEDs flicker/misbehave | 50 |
-| Optional: perfboard, soldering iron, solder | — | For final neat version | 400+ |
+| Enclosure: remote case + top panel (acrylic/3D-print/wood) | 1 | Drill 9× 12mm button holes + 9× 5mm LED holes (see ARCHITECTURE §5.4) | 150–300 |
+| Hot glue / M3 standoffs | 1 set | Glue each NeoPixel above its button, fix ESP32 perfboard inside | 50 |
+| Optional: perfboard, soldering iron, solder | — | For final neat version (ESP32 mounted at bottom of case) | 400+ |
 
 Buy from: Robu.in, Robocraze, ThinkRobotics, Sunrom, Amazon India. In Bengaluru: SP Road shops for same-day.
 
@@ -69,8 +71,23 @@ ESP32 5V/VIN ← USB 5V (power LEDs from separate 5V 2A if >10 LEDs full-white)
 
 Safe button pins (avoid boot-strapping `0, 2, 12, 15`): `13, 14, 16, 17, 18, 19, 21, 22, 23, 25*, 26, 27*, 32, 33` (*don't double-use if used for LED/buzzer).
 
+Final product layout (9 buttons, 1 NeoPixel glued above each — LED index = button index):
+
+| ID | Icon | Task example | GPIO (suggested) | LED |
+|----|------|--------------|------------------|-----|
+| 0 | Power | `POWER_TOGGLE` | 13 | LED0 red |
+| 1 | YouTube | `OPEN_YOUTUBE` | 14 | LED1 red |
+| 2 | Netflix | `OPEN_NETFLIX` | 16 | LED2 purple |
+| 3 | Back ← | `GO_BACK` | 17 | LED3 blue |
+| 4 | Home ⌂ | `GO_HOME` | 18 | LED4 cyan |
+| 5 | Vol- | `VOL_DOWN` | 19 | LED5 green |
+| 6 | Vol+ | `VOL_UP` | 21 | LED6 yellow |
+| 7 | Up ∧ | `NAV_UP` | 22 | LED7 white |
+| 8 | Down ∨ | `NAV_DOWN` | 23 | LED8 white |
+
 Suggested default (see `ARCHITECTURE.md` § Pin Map):
-`BTN0-7 → 13, 14, 16, 17, 18, 19, 21, 22` + `LED_STRIP → 27`, `BUZZER → 25`.
+`BTN0-8 → 13, 14, 16, 17, 18, 19, 21, 22, 23` + `LED_CHAIN (all 9) → 27`, `BUZZER → 25`.
+Wire LEDs as one WS2812B daisy-chain snaked button-to-button, in ID order.
 
 > WS2812B wants 5V data, ESP32 gives 3.3V. At short wires it usually works. If flicker: add 74AHCT125 level shifter.
 
@@ -89,7 +106,9 @@ Suggested default (see `ARCHITECTURE.md` § Pin Map):
 │   ├── package.json
 │   ├── app/page.tsx        # TV home screen
 │   └── server/ws.ts        # Bun WebSocket hub (or Route Handler)
-└── docs/wiring.png
+├── docs/
+│   ├── product.png         # product look / mounting reference
+│   └── wiring.png
 ```
 
 ---

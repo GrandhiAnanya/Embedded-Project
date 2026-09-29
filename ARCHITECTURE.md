@@ -12,8 +12,8 @@ Non-goals: IR blasting, real TV control, internet backend, auth, production perf
 ┌──────────────┐  Wi-Fi (phone hotspot)  ┌────────────────────────────┐
 │  ESP32 Remote│ ◄──── WebSocket ──────► │ Laptop: Bun + Next.js      │
 │              │   JSON both directions  │  ┌──────────┐ ┌─────────┐  │
-│ 8x buttons   │                         │  │ TV UI    │ │ WS Hub  │  │
-│ 10x WS2812B  │                         │  │ (React)  │ │(Bun.serve)│
+│  9x buttons   │                         │  │ TV UI    │ │ WS Hub  │  │
+│  9x WS2812B  │                         │  │ (React)  │ │(Bun.serve)│
 │ passive buzz │                         │  └──────────┘ └─────────┘  │
 └──────────────┘                         └────────────────────────────┘
 ```
@@ -120,10 +120,9 @@ Web never decides pass/fail — only renders `E2L` events into `RemoteMirror` + 
 
 | Function | GPIO | Notes |
 |----------|------|-------|
-| BTN 0–7 | 13, 14, 16, 17, 18, 19, 21, 22 | `INPUT_PULLUP`, button to GND, 30–50 ms debounce |
-| LED strip DIN | 27 | Via 330–470 Ω series resistor |
+| BTN 0–8 (Power, YT, Netflix, Back, Home, Vol-, Vol+, Up, Down) | 13, 14, 16, 17, 18, 19, 21, 22, 23 | `INPUT_PULLUP`, button to GND, 30–50 ms debounce |
+| LED chain DIN (9x WS2812B, LEDi above BTNi) | 27 | Via 330–470 Ω series resistor, single daisy-chain in ID order |
 | Buzzer + | 25 | Passive buzzer to GND, `tone()` |
-| (spare BTN8) | 23 or 33 | Optional OK/Back buttons |
 | Power | 5V/VIN + GND | USB 5V; external 5V 2A brick if LEDs white/full |
 
 I2C (21/22) and SPI defaults are sacrificed for buttons — fine, no sensors need them.
@@ -135,8 +134,21 @@ I2C (21/22) and SPI defaults are sacrificed for buttons — fine, no sensors nee
 - 330 Ω on DIN + common GND (ESP32 GND = LED GND = PSU GND).
 - ESP32 outputs 3.3V logic; WS2812B expects 5V. Short (<30 cm) wires usually work. Proper fix: 74AHCT125 level shifter if flicker.
 
-### 5.3 Networking
+### 5.3 Enclosure & mounting (per product image)
 
+Top panel (acrylic / 3D-print / wood) + bottom case. Per button: 1× 12mm button hole + 1× 5mm LED hole just above it. ESP32 on perfboard screwed at bottom of case, wires run up the middle.
+
+```
+[LED 5mm]  <- glued to top panel, above button
+[PANEL]    <- 12mm hole below LED hole
+[BUTTON]   <- inserted through panel from below, washer/nut, cap + icon on top
+```
+
+Mount steps per button: 1. Glue NeoPixel above hole (hot glue, diffuser up). 2. Insert 12mm push button through panel. 3. Washer/nut fix. 4. Press-fit cap with icon (Power, YouTube, Netflix, ←, ⌂, Vol-, Vol+, ∧, ∨).
+
+Breadboard first (6 buttons in a row + ESP32, validates mapping), then transfer same wiring into case. Keep LED chain order = button ID order so `setPixelColor(i)` lights the LED above button `i`. Leave service loop / slack for top-panel removal. Buzzer holes / USB cutout in case side.
+
+### 5.4 Networking
 - Both laptop + ESP32 join **phone hotspot** (avoids college client-isolation).
 - Laptop firewall: allow Bun on private networks.
 - ESP32 uses `WiFi.begin(ssid,pass)` + `WebSocketsClient.begin(host, 3000, "/api/ws")`, heartbeat `ping/pong` every 20 s, auto-reconnect 5 s.
@@ -147,11 +159,11 @@ I2C (21/22) and SPI defaults are sacrificed for buttons — fine, no sensors nee
 | Phase | What | Exit criteria |
 |-------|------|---------------|
 | 0. Sim (no parts) | Wokwi: ESP32 + 4 buttons + 4 NeoPixels + buzzer, Serial prints JSON | State machine works in sim |
-| 1. Buttons | 8 buttons on breadboard, debounce, Serial `{"button":N}` | No double-fires, no boot-loop pins |
-| 2. LEDs + buzzer | Strip on GPIO27, `FastLED` patterns: step-green, fail-red, win-rainbow; `tone()` ok/fail | Instant (<50 ms) feedback |
+| 1. Buttons | 9 buttons on breadboard, debounce, Serial `{"button":N}` | No double-fires, no boot-loop pins |
+| 2. LEDs + buzzer | 9 LEDs on GPIO27 in ID order, `FastLED` patterns: step-green, fail-red, win-rainbow; `tone()` ok/fail | Instant (<50 ms) feedback |
 | 3. Wi-Fi + WS | ESP32 client ↔ Bun echo server, send button JSON, receive task JSON | Survives hotspot drop/rejoin |
 | 4. Integration | Full loop: TV click → ESP32 sequence → TV progress → fake app opens | End-to-end demo video |
-| 5. Polish | Mount on cardboard/perfboard, cable-tie, brightness cap, timeout + cancel | Transport-safe, 5-min live demo |
+| 5. Enclosure | Top panel drill (9×12mm + 9×5mm), glue LEDs, mount buttons, ESP32 perfboard at bottom | Transport-safe, 5-min live demo |
 | 6. (optional) Solder | Perfboard + shifter + cap + headers | Neat final remote |
 
 Work in parallel: one member on `firmware/`, one on `tv-mock/`, agree on §3 protocol first. Mock the other side with stubs (firmware prints to Serial; web has "simulate remote" buttons) so neither blocks.
