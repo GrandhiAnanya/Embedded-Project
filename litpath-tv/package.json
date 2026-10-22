@@ -1,0 +1,9 @@
+{
+  "name": "litpath-smart-tv",
+  "version": "1.0.0",
+  "private": true,
+  "description": "LitPath Smart TV classroom prototype with ESP32 WebSocket remote",
+  "main": "server.js",
+  "scripts": { "start": "node server.js" },
+  "dependencies": { "ws": "^8.18.0" }
+}

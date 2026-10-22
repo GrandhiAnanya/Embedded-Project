@@ -1,0 +1,8 @@
+[
+ {"id":"OPEN_YOUTUBE","name":"Open YouTube","steps":["home","right","right","ok"],"goal":{"app":"YouTube"}},
+ {"id":"OPEN_NETFLIX","name":"Open Netflix","steps":["home","right","ok"],"goal":{"app":"Netflix"}},
+ {"id":"OPEN_SETTINGS","name":"Open Settings","steps":["home","down","down","ok"],"goal":{"screen":"SETTINGS"}},
+ {"id":"OPEN_PRIME","name":"Open Prime Video","steps":["home","ok"],"goal":{"app":"Prime"}},
+ {"id":"GO_BACK","name":"Go back","steps":["back"],"goal":{"previous":true}},
+ {"id":"SUBTITLES_ON","name":"Turn on subtitles","steps":["home","down","down","ok","down","down","down","ok","ok"],"goal":{"screen":"SETTINGS_SUB","category":"Accessibility","setting":"Subtitles","value":true}}
+]
