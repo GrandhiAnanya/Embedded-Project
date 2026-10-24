@@ -80,33 +80,62 @@ unsigned long lastButtonTime[7] = {0};
 
 const unsigned long debounceDelay = 250;
 
+
+// ================= SETTINGS FROM TV =================
+
+int ledBrightness = 100;      // 0-100, from Picture > Brightness
+int buzzerVolume = 7;         // 0-10, from Sound > Volume
+bool buzzerEnabled = true;    // false when Sound Mode is Mute or Audio Output is TV Speaker
+bool clickSounds = true;      // short blip on correct presses (Sound Mode: Standard)
+
+int litLED = -1;              // LED currently lit, -1 = none
+unsigned long previewUntil = 0;
+
+unsigned long connectedSince = 0;
+unsigned long lastNetReport = 0;
+
+// Buzzer gets its own LEDC channel so changing its pitch never disturbs the LED channels 0-6.
+const int BUZZER_CHANNEL = 14;
+
+
 // ================= LED CONTROL =================
+// LEDs use PWM so Picture > Brightness can dim them (8-bit duty: 0-255).
+
+int ledDuty() {
+  // Squared so the steps look even to the eye; never fully off.
+  return max(ledBrightness * ledBrightness * 255 / 10000, 3);
+}
 
 void allLEDsOff() {
   for (int i = 0; i < 7; i++) {
-    digitalWrite(ledPins[i], LOW);
+    ledcWrite(ledPins[i], 0);
   }
+  litLED = -1;
 }
 
 void showLED(int buttonIndex) {
   allLEDsOff();
 
   if (buttonIndex >= 0 && buttonIndex < 7) {
-    digitalWrite(ledPins[buttonIndex], HIGH);
+    ledcWrite(ledPins[buttonIndex], ledDuty());
+    litLED = buttonIndex;
   }
 }
 
-int buttonIndexFromName(String name) {
-  name.toLowerCase();
-
+// Light every LED briefly at the new brightness, then restore.
+void previewBrightness() {
   for (int i = 0; i < 7; i++) {
-    if (name == buttonNames[i]) {
-      return i;
-    }
+    ledcWrite(ledPins[i], ledDuty());
   }
-
-  return -1;
+  previewUntil = millis() + 800;
 }
+
+void restoreLEDs() {
+  int keep = litLED;
+  if (keep >= 0) showLED(keep);
+  else allLEDsOff();
+}
+
 
 // ================= WEBSOCKET SEND =================
 
@@ -246,6 +275,8 @@ void handleTaskButton(int buttonIndex) {
   if (buttonIndex == expectedButton) {
 
     Serial.println("Correct button!");
+    correctBeep();
+
 
     // Send the actual TV action
     sendAction(buttonNames[buttonIndex]);
@@ -365,6 +396,9 @@ void webSocketEvent(
     case WStype_CONNECTED:
 
       connected = true;
+      connectedSince = millis();
+      sendNetworkReport();
+
 
       Serial.println("Connected to LitPath website");
 
@@ -452,6 +486,44 @@ void webSocketEvent(
           updateGuidedLED();
         }
       }
+
+            // TV settings: LED brightness, buzzer volume and sound mode
+      else if (eventName == "remote_settings") {
+
+        int newBrightness = constrain((int)(doc["brightness"] | ledBrightness), 0, 100);
+
+        buzzerVolume = constrain((int)(doc["volume"] | buzzerVolume), 0, 10);
+        buzzerEnabled = doc["buzzer"] | true;
+        clickSounds = doc["clicks"] | true;
+
+        if (newBrightness != ledBrightness) {
+          ledBrightness = newBrightness;
+          previewBrightness();
+        }
+
+        if (doc["test"] | false) {
+          beep(1500, 120);
+        }
+
+        Serial.printf("Settings: LED %d%%, volume %d, buzzer %s\n",
+          ledBrightness, buzzerVolume, buzzerEnabled ? "on" : "off");
+      }
+
+      // Network Test: reply immediately so the TV can time the round trip
+      else if (eventName == "net_ping") {
+
+        StaticJsonDocument<64> reply;
+
+        reply["event"] = "net_pong";
+        reply["id"] = doc["id"];
+
+        String message;
+        serializeJson(reply, message);
+
+        webSocket.sendTXT(message);
+      }
+
+
 
       // Website can also send an action
       else if (doc.containsKey("action")) {
@@ -556,21 +628,54 @@ void handleButtonPress(int buttonIndex) {
   }
 
   // Normal remote actions
+  correctBeep();
   sendAction(buttonNames[buttonIndex]);
 }
 
 // ================= BUZZER =================
+// Volume = PWM duty. ledcWriteTone() switches the channel to 10-bit, so 512 = 50% = loudest.
+
+void beep(int freq, int ms) {
+  if (!buzzerEnabled || buzzerVolume == 0) return;
+
+  ledcWriteTone(BUZZER_PIN, freq);
+  ledcWrite(BUZZER_PIN, buzzerVolume * buzzerVolume * 512 / 100);
+  delay(ms);
+  ledcWrite(BUZZER_PIN, 0);
+}
 
 void buzzerOff() {
-  ledcWriteTone(BUZZER_PIN, 0);
+  ledcWrite(BUZZER_PIN, 0);
 }
 
 void wrongButtonBeep() {
-  // Short warning beep
-  tone(BUZZER_PIN, 2000);
-  delay(150);
-  noTone(BUZZER_PIN);
+  beep(2000, 150);
 }
+
+void correctBeep() {
+  if (clickSounds) beep(3000, 40);
+}
+
+// ================= NETWORK REPORT =================
+// Tells the TV the real Wi-Fi name, signal strength and IP.
+
+void sendNetworkReport() {
+  if (!connected) return;
+
+  StaticJsonDocument<200> doc;
+
+  doc["event"] = "net";
+  doc["ssid"] = WiFi.SSID();
+  doc["rssi"] = WiFi.RSSI();
+  doc["ip"] = WiFi.localIP().toString();
+  doc["uptime"] = (millis() - connectedSince) / 1000;
+
+  String message;
+  serializeJson(doc, message);
+
+  webSocket.sendTXT(message);
+}
+
 
 // ================= SETUP =================
 
@@ -587,19 +692,15 @@ void setup() {
     pinMode(buttonPins[i], INPUT_PULLUP);
   }
 
-  // Configure LEDs
+  // Configure LEDs as PWM (channels 0-6) so they can be dimmed
   for (int i = 0; i < 7; i++) {
-
-    pinMode(ledPins[i], OUTPUT);
-
-    digitalWrite(ledPins[i], LOW);
+    ledcAttachChannel(ledPins[i], 5000, 8, i);
+    ledcWrite(ledPins[i], 0);
   }
 
-  // Configure passive buzzer
-pinMode(BUZZER_PIN, OUTPUT);
-
-// Start with buzzer OFF
-buzzerOff();
+  // Configure passive buzzer on its own channel, start OFF
+  ledcAttachChannel(BUZZER_PIN, 2000, 10, BUZZER_CHANNEL);
+  buzzerOff();
 
   // Connect Wi-Fi
   WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
@@ -645,6 +746,17 @@ buzzerOff();
 void loop() {
 
   webSocket.loop();
+
+    if (millis() - lastNetReport > 3000) {
+    lastNetReport = millis();
+    sendNetworkReport();
+  }
+
+  if (previewUntil && millis() > previewUntil) {
+    previewUntil = 0;
+    restoreLEDs();
+  }
+
 
   for (int i = 0; i < 7; i++) {
 
