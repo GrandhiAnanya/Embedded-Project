@@ -5,8 +5,8 @@
 
 // ================= WIFI =================
 
-const char* WIFI_SSID = "Redmi Note 12 Pro 5G";
-const char* WIFI_PASSWORD = "Ananya@2006";
+const char* WIFI_SSID = "";
+const char* WIFI_PASSWORD = "";
 
 // Enter your laptop's IPv4 address.
 // Example: 192.168.1.10
