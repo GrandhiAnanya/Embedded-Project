@@ -137,6 +137,18 @@ void restoreLEDs() {
 }
 
 
+int buttonIndexFromName(String name) {
+  name.toLowerCase();
+
+  for (int i = 0; i < 7; i++) {
+    if (name == buttonNames[i]) {
+      return i;
+    }
+  }
+
+  return -1;
+}
+
 // ================= WEBSOCKET SEND =================
 
 void sendAction(String action) {
