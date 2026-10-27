@@ -92,6 +92,7 @@
       let n = s.category === 'Accessibility' ? 3 : 3;
       if (a === 'up') s.sub = Math.max(0, s.sub - 1);
       if (a === 'down') s.sub = Math.min(n - 1, s.sub + 1);
+      if (s.category !== 'Accessibility') TVSettings.press(s.category, s.sub, a);
       if (a === 'ok' && s.category === 'Accessibility') {
         if (s.sub === 0) subtitle = !subtitle;
         if (s.sub === 1) large = !large;
@@ -128,8 +129,8 @@
         vals =
           cat === 'Accessibility'
             ? [subtitle, large, contrast].map(x => (x ? 'ON' : 'OFF'))
-            : ['Standard', 'Default', 'Auto'];
-      c.innerHTML = `<div class="settings"><h1>${state.screen === 'SETTINGS' ? 'Settings' : safe(cat)}</h1><p class="sub">${state.screen === 'SETTINGS' ? 'Make your TV work for you' : 'Personalise your viewing experience'}</p><div class="settingslayout"><div>${(state.screen === 'SETTINGS' ? cats : opts).map((x, i) => `<div class="setting ${i === (state.screen === 'SETTINGS' ? state.setting : state.sub) ? 'selected' : ''}"><span>${x}</span><span class="value">${state.screen === 'SETTINGS' ? '›' : cat === 'Accessibility' ? vals[i] : vals[i] || '›'}</span></div>`).join('')}</div><div class="info"><h2>${safe(state.screen === 'SETTINGS' ? cat : opts[state.sub])}</h2><p>${cat === 'Accessibility' ? (state.sub === 0 ? (subtitle ? 'Subtitles are enabled.' : 'Subtitles are disabled.') : state.sub === 1 ? (large ? 'Large text is enabled.' : 'Large text is disabled.') : contrast ? 'High contrast is enabled.' : 'High contrast is disabled.') : 'Adjust this setting to make your TV more comfortable to use.'}</p></div></div><div class="screenfoot"><span>Accessibility and preferences</span><span>SETTINGS</span></div></div>`;
+            : TVSettings.values(cat);
+      c.innerHTML = `<div class="settings"><h1>${state.screen === 'SETTINGS' ? 'Settings' : safe(cat)}</h1><p class="sub">${state.screen === 'SETTINGS' ? 'Make your TV work for you' : 'Personalise your viewing experience'}</p><div class="settingslayout"><div>${(state.screen === 'SETTINGS' ? cats : opts).map((x, i) => `<div class="setting ${i === (state.screen === 'SETTINGS' ? state.setting : state.sub) ? 'selected' : ''}"><span>${x}</span><span class="value">${state.screen === 'SETTINGS' ? '›' : cat === 'Accessibility' ? vals[i] : vals[i] || '›'}</span></div>`).join('')}</div><div class="info"><h2>${safe(state.screen === 'SETTINGS' ? cat : opts[state.sub])}</h2><p>${cat === 'Accessibility' ? (state.sub === 0 ? (subtitle ? 'Subtitles are enabled.' : 'Subtitles are disabled.') : state.sub === 1 ? (large ? 'Large text is enabled.' : 'Large text is disabled.') : contrast ? 'High contrast is enabled.' : 'High contrast is disabled.') : TVSettings.info(cat, state.screen === 'SETTINGS' ? -1 : state.sub)}</p></div></div><div class="screenfoot"><span>Accessibility and preferences</span><span>SETTINGS</span></div></div>`;
     }
     
 if (menu) {
@@ -436,6 +437,7 @@ if (menu) {
     let before = JSON.stringify(state),
       expected = task && task.steps[step];
     if (task && step < task.steps.length && a !== expected) {
+      TVSettings.sound('wrong');
       wrong++;
       pairs[expected + '→' + a] = (pairs[expected + '→' + a] || 0) + 1;
       renderPairs();
@@ -451,6 +453,7 @@ if (menu) {
     }
     state = transition(state, a);
     render();
+    TVSettings.sound('click');
     addLog(source, `action ${a}`);
     if (task && a === expected) {
       step++;
@@ -524,7 +527,10 @@ if (menu) {
         addLog('warning', 'Malformed JSON ignored', true);
         return;
       }
-      if (m.event === 'remote_status') status(!!m.connected);
+      if (m.event === 'remote_status') {
+        status(!!m.connected);
+        TVSettings.remoteStatus(!!m.connected);
+      }
       else if (m.event === 'tasks' && Array.isArray(m.tasks)) {
         tasks = m.tasks.filter(t => t && t.id && Array.isArray(t.steps));
         fillTasks();
@@ -568,6 +574,7 @@ else if (m.event === 'task_start') startTask(m.task, guided ? 'guided' : 'unguid
         setTimeout(() => mirror('none', ''), 400);
         addLog('incoming', 'preview ' + m.button);
       } else if (m.event === 'wrong') {
+        TVSettings.sound('wrong');
         wrong++;
         pairs[m.expected + '→' + m.pressed] = (pairs[m.expected + '→' + m.pressed] || 0) + 1;
         renderPairs();
@@ -578,7 +585,7 @@ else if (m.event === 'task_start') startTask(m.task, guided ? 'guided' : 'unguid
       else if (m.event === 'hint') {
         hints++;
         addLog('incoming', 'hint level ' + m.level);
-      } else addLog('incoming', JSON.stringify(m));
+      } else if (!TVSettings.onMessage(m)) addLog('incoming', JSON.stringify(m));
     };
   }
 
@@ -710,6 +717,11 @@ $('menu').onclick = () => {
     a.click();
     URL.revokeObjectURL(url);
   };
+  TVSettings.init({
+    send,
+    render,
+    current: () => (state.screen === 'SETTINGS_SUB' ? state.category : null),
+  });
   setView(false);
   render();
   renderStats();
