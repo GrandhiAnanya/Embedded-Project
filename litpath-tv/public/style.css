@@ -1,1 +1,617 @@
-:root{color-scheme:dark;--bg:#080b11;--panel:#121a26;--line:#2b3b52;--text:#f6f8fc;--muted:#a5b3c8;--yellow:#ffda4f;--green:#31e58b;--red:#ff5966;font-family:Segoe UI,Arial,sans-serif}*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at top left,#152239,var(--bg) 58%);color:var(--text)}button,select{font:inherit;color:inherit;cursor:pointer}button{border:1px solid #40516a;background:#1b2738;border-radius:9px;padding:10px;font-weight:700}button:focus-visible,select:focus-visible{outline:4px solid var(--yellow);outline-offset:2px}header{height:66px;padding:0 22px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #263348;background:#080b11}.brand{display:flex;align-items:center;gap:9px;font-size:20px}.mark{display:grid;place-items:center;background:var(--green);color:#07130d;border-radius:9px;width:32px;height:32px}.headright{display:flex;align-items:center;gap:12px}.badge{font-size:12px;border:1px solid #39465a;padding:8px 11px;border-radius:99px;color:#b8c3d3}.badge.on{color:#aaffd0;border-color:#28734f}.badge.on:first-letter{color:var(--green)}kbd{font-size:11px;margin-left:7px}.layout{padding:22px;display:grid;grid-template-columns:minmax(480px,1fr);gap:22px;max-width:1800px;margin:auto}.layout.presenter{grid-template-columns:minmax(480px,1.15fr) minmax(340px,.85fr)}#frame{max-width:1050px;margin:12px auto 0;padding:9px;border-radius:19px;background:linear-gradient(140deg,#394453,#0a0c11 30%,#252d39);box-shadow:0 24px 50px #0009}#screen{aspect-ratio:16/9;position:relative;overflow:hidden;border-radius:10px;background:#090d14}.screenbar{position:absolute;z-index:2;top:0;left:0;right:0;display:flex;justify-content:space-between;padding:2.2% 3%;font-size:clamp(10px,1vw,14px);letter-spacing:2px;color:#91a0b4}.screenbar b{color:#e3e9f2}#content{position:absolute;inset:0;padding:7% 5% 4%}.home,.appview,.settings{height:100%;display:flex;flex-direction:column;justify-content:center;gap:3%}h1{font-size:clamp(24px,2.8vw,40px);margin:0;line-height:1.1} .sub{font-size:clamp(14px,1.5vw,22px);color:#b1bfd2;margin:0}.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:2.3%}.tile{display:flex;align-items:center;gap:8%;min-width:0;aspect-ratio:2.1/1;text-align:left;padding:0 7%;background:#182438;border:2px solid transparent;border-radius:11px;transition:all .18s}.tile.selected,.setting.selected,.menuitem.selected{border:4px solid var(--yellow);background:#26364d;box-shadow:0 0 18px #ffda4f25}.ico{display:grid;place-items:center;flex:0 0 25%;aspect-ratio:1;border-radius:9px;font-size:clamp(15px,2vw,27px);font-weight:900;background:#33435a}.tile[data-app="YouTube"] .ico{background:#e62117}.tile[data-app="Netflix"] .ico{background:#a70d19}.tile[data-app="Prime"] .ico{background:#1677c8}.tile[data-app="Settings"] .ico{background:#53627a}.label{font-size:clamp(14px,1.7vw,24px);font-weight:750}.screenfoot{display:flex;justify-content:space-between;color:#7e8da3;font-size:clamp(10px,1vw,14px)}.hero{display:flex;align-items:center;gap:4%}.bigico{display:grid;place-items:center;width:15%;aspect-ratio:1;border-radius:16px;font-size:clamp(28px,4vw,55px);font-weight:900;background:var(--appcolor)}.contenttiles{display:grid;grid-template-columns:repeat(4,1fr);gap:2%}.fake{aspect-ratio:1.15;border-radius:9px;padding:7%;display:flex;flex-direction:column;justify-content:end;background:linear-gradient(140deg,#426e85,#1a263c);border:1px solid #35435a;font-size:clamp(11px,1.3vw,18px)}.fake:nth-child(2){background:linear-gradient(140deg,#b65b41,#432d48)}.fake:nth-child(3){background:linear-gradient(140deg,#8d7b39,#263e4d)}.fake:nth-child(4){background:linear-gradient(140deg,#625ca8,#1c283d)}.settingslayout{display:grid;grid-template-columns:1fr 1fr;gap:5%;align-items:center}.setting{display:flex;justify-content:space-between;align-items:center;border:2px solid transparent;border-radius:8px;background:#172337;padding:3%;margin:7px 0;font-size:clamp(14px,1.6vw,23px)}.value{color:#b4c7df;font-size:.8em}.info{border:1px solid #31415a;border-radius:12px;padding:8%;background:#121b29}.info h2{font-size:clamp(18px,2vw,29px);margin:0 0 10px}.info p{font-size:clamp(13px,1.3vw,18px);color:#aab8ca;margin:0}.hidden{display:none!important}#chip{position:absolute;z-index:3;right:3%;top:9%;padding:8px 12px;border:1px solid #52627a;background:#152235ee;border-radius:99px;font-size:clamp(10px,1vw,14px)}#success{position:absolute;inset:0;z-index:8;display:grid;place-content:center;text-align:center;background:#07150ff2;font-size:clamp(25px,3vw,43px);font-weight:800}#flash{position:absolute;inset:0;pointer-events:none;z-index:9}#flash.on{animation:flash .45s}@keyframes flash{30%,65%{box-shadow:inset 0 0 0 7px var(--red)}}.foot{text-align:center;color:#718097;font-size:12px}.user #presenter{display:none}.presenter #presenter{display:flex;flex-direction:column;gap:13px;min-width:0}.card{background:linear-gradient(140deg,#131c29,#0d141e);border:1px solid var(--line);border-radius:14px;padding:14px;min-width:0}.row{display:flex;justify-content:space-between;align-items:center;gap:10px}.card h2{font-size:20px;margin:0}.card h3{font-size:14px;margin:10px 0}.live{color:#9cffc8;font-size:11px}.muted{font-size:11px;color:#94a5bc;line-height:1.45}#remote{margin:12px auto;width:min(100%,300px);padding:13px;border-radius:20px;border:1px solid #51627b;background:linear-gradient(145deg,#2b394e,#111722);display:flex;flex-direction:column;gap:8px;align-items:stretch}#remote button{min-height:38px;background:#26364b;border:2px solid #52627a;font-size:13px}#remote button.lit{background:#11764b;border-color:#63ffb4;box-shadow:0 0 20px #31e58b9c}#remote button.wrong{background:#962c38;border-color:#ff8c93;box-shadow:0 0 18px #ff5966aa}.pad{display:grid;grid-template-columns:repeat(3,58px);grid-template-rows:repeat(3,43px);gap:4px;justify-content:center}.pad button:nth-child(1){grid-column:2}.pad button:nth-child(2){grid-column:1;grid-row:2}.pad button:nth-child(3){grid-column:2;grid-row:2}.pad button:nth-child(4){grid-column:3;grid-row:2}.pad button:nth-child(5){grid-column:2;grid-row:3}.legend{text-align:center;color:#95a5bb;font-size:10px}.legend span{color:#ff8a92}.switchrow{display:flex;justify-content:space-between;padding:8px 0;font-size:12px;border-bottom:1px solid #27354a}.switchrow input{accent-color:#1eaa6b}select{width:100%;padding:10px;margin:10px 0;background:#1b293d;border:1px solid #42546c;border-radius:8px}.primary{background:#168958;border-color:#36c985;width:100%}#menu{width:100%;margin-top:7px}#steps{list-style:none;padding:0;margin:8px 0}#steps li{font-size:11px;color:#8d9eb4;background:#131d2a;border:1px solid #27364b;padding:8px;border-radius:6px;margin:4px 0}.current{border-color:var(--yellow)!important;color:#fff0a7!important}.done{color:#a4f5c7!important;border-color:#28724f!important}small{color:#8b9bb0;font-weight:400}.scroll{overflow:auto}table{border-collapse:collapse;width:100%;font-size:10px;white-space:nowrap}td,th{text-align:left;padding:7px;border-bottom:1px solid #27354a}th{color:#8495ac}#summary{font-size:12px;color:#a9bad0;padding:8px 0}#log{display:flex;flex-direction:column;gap:4px;max-height:190px;overflow:auto;font:10px/1.4 monospace}.logitem{padding:6px;background:#151f2d;border-radius:5px;color:#b1bfd0;overflow-wrap:anywhere}.warn{background:#351d25;color:#ffadb4}.menu-overlay{position:absolute;z-index:5;inset:0;background:#070b11ef;display:flex;flex-direction:column;justify-content:center;gap:1.5%;padding:7% 9%}.menu-overlay h2{font-size:clamp(22px,2.6vw,36px)}.menuitem{text-align:left;font-size:clamp(14px,1.6vw,22px);border:2px solid #40516a;padding:2%;background:#182438}.user .foot{margin-top:12px}@media(max-width:1000px){.layout.presenter{grid-template-columns:1fr}.presenter #presenter{max-width:760px;margin:auto;width:100%}}@media(max-width:620px){header{padding:0 10px}.brand{font-size:15px}.badge{font-size:0}.layout{padding:10px}.layout.presenter{grid-template-columns:1fr}#frame{padding:5px}.card{padding:11px}}
+/* =========================================================
+   LitPath Smart TV – styling
+   Only visuals live here. Class names / ids match app.js + index.html.
+   ========================================================= */
+
+/* ---------- 1. Design tokens ---------- */
+:root {
+  color-scheme: dark;
+
+  /* surfaces */
+  --bg: #0b0d12;            /* page */
+  --bg-glow: #181d29;       /* soft glow behind the TV */
+  --panel: #14171f;         /* cards */
+  --panel-2: #1b1f29;       /* raised elements */
+  --panel-3: #262b38;       /* hover / selected surface */
+  --line: #2a2f3c;          /* borders */
+
+  /* text */
+  --text: #f5f7fa;
+  --muted: #a3abbd;
+  --faint: #7b8396;
+
+  /* accents */
+  --focus: #ffffff;         /* the "you are here" ring, like Android TV */
+  --focus-soft: rgba(255, 255, 255, 0.2);
+  --ok: #34d399;            /* success / connected */
+  --bad: #ff5d6c;           /* wrong press */
+  --accent: #3b82f6;        /* primary actions */
+
+  /* shape + spacing (8px scale) */
+  --r-sm: 10px;
+  --r-md: 14px;
+  --r-lg: 20px;
+  --s1: 8px;
+  --s2: 16px;
+  --s3: 24px;
+  --s4: 32px;
+
+  font-family: "Segoe UI", "Inter", system-ui, -apple-system, Roboto, Arial, sans-serif;
+}
+
+/* ---------- 2. Base ---------- */
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  color: var(--text);
+  line-height: 1.45;
+  background:
+    radial-gradient(900px 500px at 50% -10%, var(--bg-glow), transparent 70%),
+    var(--bg);
+  min-height: 100vh;
+}
+
+button, select { font: inherit; color: inherit; cursor: pointer; }
+
+button {
+  border: 1px solid var(--line);
+  background: var(--panel-2);
+  border-radius: var(--r-sm);
+  padding: 10px 14px;
+  font-weight: 650;
+  transition: background .15s, border-color .15s, transform .15s;
+}
+button:hover { background: var(--panel-3); border-color: #444c60; }
+button:active { transform: translateY(1px); }
+
+button:focus-visible,
+select:focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: 2px;
+}
+
+kbd {
+  font-size: 11px;
+  margin-left: 8px;
+  padding: 2px 6px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: #0d1016;
+  color: var(--muted);
+}
+
+small { color: var(--faint); font-weight: 400; }
+.hidden { display: none !important; }
+
+/* ---------- 3. Header ---------- */
+header {
+  height: 72px;
+  padding: 0 var(--s4);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #0b0d12e6;
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--line);
+  position: sticky;
+  top: 0;
+  z-index: 20;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 20px;
+  letter-spacing: .2px;
+}
+.brand strong { font-weight: 500; color: var(--muted); }
+
+.mark {
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 12px;
+  color: #fff;
+  font-size: 20px;
+  font-weight: 800;
+  background: linear-gradient(140deg, #3b82f6, #7c5cff);
+  box-shadow: 0 6px 18px #3b82f644;
+}
+
+.headright { display: flex; align-items: center; gap: var(--s2); }
+
+.badge {
+  font-size: 13px;
+  padding: 8px 14px;
+  border-radius: 99px;
+  border: 1px solid var(--line);
+  background: var(--panel);
+  color: var(--muted);
+}
+.badge:first-letter { color: var(--bad); }
+.badge.on { color: #c9fbe8; border-color: #1c6b58; background: #0e2a25; }
+.badge.on:first-letter { color: var(--ok); }
+
+/* ---------- 4. Layout ---------- */
+.layout {
+  max-width: 1840px;
+  margin: 0 auto;
+  padding: var(--s4);
+  display: grid;
+  grid-template-columns: minmax(480px, 1fr);
+  gap: var(--s4);
+  align-items: start;
+}
+.layout.presenter { grid-template-columns: minmax(480px, 1.6fr) minmax(340px, .8fr); }
+
+/* ---------- 5. TV frame + screen ---------- */
+.tvcol { min-width: 0; }
+.presenter .tvcol { position: sticky; top: 96px; }
+
+#frame {
+  max-width: 1200px;
+  margin: var(--s1) auto 0;
+  padding: 12px;
+  border-radius: 24px;
+  background: linear-gradient(145deg, #333945, #090b0f 35%, #20252f);
+  box-shadow:
+    0 30px 60px #000000aa,
+    0 0 0 1px #ffffff12 inset;
+}
+
+#screen {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  container-type: inline-size;
+  overflow: hidden;
+  border-radius: 12px;
+  background:
+    radial-gradient(900px 420px at 10% 0%, #1f2638, transparent 65%),
+    radial-gradient(700px 400px at 100% 100%, #121822, transparent 70%),
+    #0b0e14;
+}
+
+.screenbar {
+  position: absolute;
+  z-index: 2;
+  top: 0; left: 0; right: 0;
+  display: flex;
+  justify-content: space-between;
+  padding: 2.4% 3.6%;
+  font-size: clamp(10px, 1vw, 14px);
+  letter-spacing: 2px;
+  color: var(--faint);
+}
+.screenbar b { color: #dfe6ff; }
+
+#content {
+  position: absolute;
+  inset: 0;
+  padding: 8% 6% 3.4%;
+}
+
+.home, .appview, .settings {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: clamp(10px, 1.7vw, 24px);
+}
+
+h1 {
+  margin: 0;
+  font-size: clamp(24px, 2.9vw, 42px);
+  line-height: 1.12;
+  font-weight: 750;
+  letter-spacing: -.3px;
+}
+.sub { margin: 0; font-size: clamp(14px, 1.5vw, 22px); color: var(--muted); }
+
+.screenfoot {
+  display: flex;
+  justify-content: space-between;
+  color: var(--faint);
+  font-size: clamp(10px, 1vw, 14px);
+}
+
+/* ---------- 6. Home grid ---------- */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: clamp(10px, 1.5vw, 20px);
+}
+
+.tile {
+  display: flex;
+  align-items: center;
+  gap: 9%;
+  min-width: 0;
+  aspect-ratio: 3.2 / 1;
+  padding: 0 7%;
+  text-align: left;
+  /* --c is the app's brand colour, set per tile below */
+  background: var(--c, #2a3040);
+  background: linear-gradient(135deg, var(--c, #2a3040), color-mix(in srgb, var(--c, #2a3040) 55%, #000));
+  background-origin: border-box; /* no gradient seam under the transparent border */
+  border: 3px solid transparent;
+  border-radius: var(--r-md);
+  box-shadow: 0 8px 18px #0006;
+  transition: transform .18s ease, border-color .18s, background .18s, box-shadow .18s;
+}
+
+/* same order as the "names" list in app.js */
+.grid .tile:nth-child(1) { --c: #1677c8; } /* Prime Video */
+.grid .tile:nth-child(2) { --c: #b30f1c; } /* Netflix */
+.grid .tile:nth-child(3) { --c: #e62117; } /* YouTube */
+.grid .tile:nth-child(4) { --c: #9b3fc4; } /* Music */
+.grid .tile:nth-child(5) { --c: #c99220; } /* Photos */
+.grid .tile:nth-child(6) { --c: #1c8c6f; } /* Live TV */
+.grid .tile:nth-child(7) { --c: #4a5870; } /* Settings */
+.grid .tile:nth-child(8) { --c: #2570d0; } /* Browser */
+.grid .tile:nth-child(9) { --c: #6c4fc4; } /* Games */
+
+.ico {
+  display: grid;
+  place-items: center;
+  flex: 0 0 23%;
+  aspect-ratio: 1;
+  border-radius: 14px;
+  font-size: clamp(15px, 2vw, 28px);
+  font-weight: 800;
+  color: #fff;
+  /* sits on top of the coloured tile; !important beats the inline colour from app.js */
+  background: rgba(255, 255, 255, .2) !important;
+  box-shadow: none;
+}
+
+.label { font-size: clamp(14px, 1.7vw, 24px); font-weight: 700; }
+
+/* focus, Android-TV style: tiles lift and get a white ring ... */
+.tile.selected {
+  border-color: var(--focus);
+  transform: scale(1.06);
+  box-shadow: 0 0 0 6px var(--focus-soft), 0 18px 36px #000a;
+}
+
+/* ... list rows turn solid white with dark text */
+.setting.selected,
+.menuitem.selected {
+  border-color: var(--focus);
+  background: #fff;
+  color: #0b0d12;
+  box-shadow: 0 0 0 5px var(--focus-soft), 0 12px 26px #0008;
+}
+.setting.selected .value { color: #3a4152; }
+
+/* ---------- 7. App view ---------- */
+.hero { display: flex; align-items: center; gap: 4%; }
+
+.bigico {
+  display: grid;
+  place-items: center;
+  width: 15%;
+  aspect-ratio: 1;
+  border-radius: 20px;
+  font-size: clamp(28px, 4vw, 55px);
+  font-weight: 800;
+  color: #fff;
+  background: var(--appcolor);
+  box-shadow: 0 14px 30px #0007;
+}
+
+.contenttiles { display: grid; grid-template-columns: repeat(4, 1fr); gap: 2.4%; }
+
+.fake {
+  aspect-ratio: 1.15;
+  padding: 7%;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  border-radius: var(--r-md);
+  border: 1px solid #ffffff1c;
+  font-size: clamp(11px, 1.3vw, 18px);
+  font-weight: 600;
+  background: linear-gradient(140deg, #3d6a80, #1a2430);
+}
+.fake:nth-child(2) { background: linear-gradient(140deg, #a85a45, #3a2c36); }
+.fake:nth-child(3) { background: linear-gradient(140deg, #86783f, #243540); }
+.fake:nth-child(4) { background: linear-gradient(140deg, #61599f, #1f2735); }
+
+/* ---------- 8. Settings ---------- */
+.settingslayout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 5%;
+  align-items: center;
+}
+
+.setting {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin: 9px 0;
+  padding: 3.2% 4%;
+  border: 3px solid transparent;
+  border-radius: var(--r-sm);
+  background: #1a1e28;
+  font-size: clamp(14px, 1.6vw, 23px);
+  font-weight: 600;
+  transition: border-color .15s, background .15s, box-shadow .15s;
+}
+
+.value {
+  color: #b7c0d4;
+  font-size: .8em;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.info {
+  padding: 8%;
+  border: 1px solid #2c3140;
+  border-radius: var(--r-md);
+  background: #141820;
+}
+.info h2 { margin: 0 0 12px; font-size: clamp(18px, 2vw, 29px); font-weight: 700; }
+.info p { margin: 0; font-size: clamp(13px, 1.3vw, 18px); line-height: 1.55; color: #b3bccf; }
+
+/* ---------- 9. Overlays on the TV ---------- */
+#chip {
+  position: absolute;
+  z-index: 3;
+  right: 3.2%;
+  top: 11.5%;
+  padding: 8px 14px;
+  border-radius: 99px;
+  border: 1px solid #3a4152;
+  background: #151a24f0;
+  font-size: clamp(10px, 1vw, 14px);
+  font-weight: 600;
+}
+
+#success {
+  position: absolute;
+  inset: 0;
+  z-index: 8;
+  display: grid;
+  place-content: center;
+  padding: 0 8%;
+  text-align: center;
+  font-size: clamp(25px, 3vw, 43px);
+  font-weight: 750;
+  color: #d3fff1;
+  background: radial-gradient(600px 300px at 50% 50%, #0f3b34, #08201cf5);
+}
+
+#flash { position: absolute; inset: 0; z-index: 9; pointer-events: none; }
+#flash.on { animation: flash .45s; }
+@keyframes flash { 30%, 65% { box-shadow: inset 0 0 0 7px var(--bad); } }
+
+.menu-overlay {
+  position: absolute;
+  z-index: 5;
+  inset: 0;
+  /* items flow down each column so the ▲ ▼ keys move straight down the list */
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: auto repeat(6, auto);
+  grid-auto-flow: column;
+  grid-auto-columns: 1fr;
+  align-content: center;
+  align-content: safe center;
+  gap: clamp(6px, 1vw, 14px) clamp(10px, 1.4vw, 20px);
+  gap: clamp(6px, 1.3cqw, 14px) clamp(10px, 1.8cqw, 22px);
+  padding: 6.5% 6% 3%;
+  background: #090b10fa;
+  overflow: auto;
+}
+.menu-overlay h2 {
+  grid-column: 1 / -1;
+  grid-row: 1;
+  margin: 0 0 clamp(2px, .8vw, 10px);
+  font-size: clamp(18px, 2.4vw, 34px);
+  font-size: clamp(16px, 3.1cqw, 34px);
+}
+
+.menuitem {
+  text-align: left;
+  padding: clamp(6px, 1vw, 14px) clamp(10px, 1.4vw, 20px);
+  padding: clamp(6px, 1.2cqw, 14px) clamp(10px, 1.6cqw, 20px);
+  border: 3px solid transparent;
+  border-radius: var(--r-sm);
+  background: #1a1e28;
+  font-size: clamp(12px, 1.3vw, 18px);
+  font-size: clamp(11px, 1.75cqw, 20px);
+  line-height: 1.25;
+}
+
+.foot { text-align: center; color: var(--faint); font-size: 12px; margin: var(--s2) 0 0; }
+
+/* ---------- 10. Presenter console ---------- */
+.user #presenter { display: none; }
+.presenter #presenter { display: flex; flex-direction: column; gap: var(--s2); min-width: 0; }
+
+.card {
+  min-width: 0;
+  padding: var(--s3);
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+  background: var(--panel);
+  box-shadow: 0 8px 20px #0003;
+}
+
+.row { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+.card .row button { padding: 6px 12px; font-size: 12px; }
+
+.card h2 { margin: 0; font-size: 20px; font-weight: 700; }
+.card h3 { margin: var(--s2) 0 var(--s1); font-size: 15px; font-weight: 650; color: #e3e8f4; }
+.card h3:first-child { margin-top: 0; }
+
+.live { font-size: 12px; font-weight: 700; color: #a7f3d0; }
+.muted { margin: 0; font-size: 12px; line-height: 1.55; color: var(--muted); }
+
+/* mirror remote */
+#remote {
+  width: min(100%, 300px);
+  margin: var(--s2) auto;
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  align-items: stretch;
+  border-radius: 28px;
+  border: 1px solid #343a49;
+  background: linear-gradient(150deg, #262b38, #11141b);
+  box-shadow: 0 14px 30px #0006, 0 0 0 1px #ffffff0d inset;
+}
+#remote button {
+  min-height: 42px;
+  border: 2px solid #3d4455;
+  background: #2a3040;
+  font-size: 13px;
+}
+#remote button.lit {
+  background: #0f7a5a;
+  border-color: #6ee7b7;
+  box-shadow: 0 0 22px #34d39999;
+}
+#remote button.wrong {
+  background: #94303d;
+  border-color: #ff9aa4;
+  box-shadow: 0 0 20px #ff6b7aaa;
+}
+#remote button.preview { border-color: var(--focus); box-shadow: 0 0 18px #ffffff66; }
+
+.pad {
+  display: grid;
+  grid-template-columns: repeat(3, 62px);
+  grid-template-rows: repeat(3, 46px);
+  gap: 6px;
+  justify-content: center;
+}
+.pad button:nth-child(1) { grid-column: 2; }
+.pad button:nth-child(2) { grid-column: 1; grid-row: 2; }
+.pad button:nth-child(3) { grid-column: 2; grid-row: 2; font-weight: 800; }
+.pad button:nth-child(4) { grid-column: 3; grid-row: 2; }
+.pad button:nth-child(5) { grid-column: 2; grid-row: 3; }
+
+.legend { text-align: center; color: var(--muted); font-size: 11px; }
+.legend span { color: #ff9ca6; }
+
+/* task control */
+.switchrow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 0;
+  font-size: 13px;
+  border-bottom: 1px solid #262b38;
+}
+.switchrow input { width: 18px; height: 18px; accent-color: var(--ok); }
+
+select {
+  width: 100%;
+  margin: var(--s2) 0 var(--s1);
+  padding: 12px;
+  border: 1px solid #3a4152;
+  border-radius: var(--r-sm);
+  background: #1b1f29;
+}
+
+.primary { width: 100%; background: var(--accent); border-color: #6aa0f8; color: #fff; }
+.primary:hover { background: #5a97f8; border-color: #8ab8fb; }
+#menu { width: 100%; margin-top: var(--s1); }
+
+#steps { list-style: none; margin: var(--s1) 0 0; padding: 0; }
+#steps li {
+  margin: 6px 0;
+  padding: 9px 12px;
+  border: 1px solid #2a2f3c;
+  border-radius: 8px;
+  background: #12151c;
+  font-size: 12px;
+  color: var(--muted);
+}
+.current { border-color: #60a5fa !important; color: #dbeafe !important; background: #12203a !important; }
+.done { border-color: #1c6b58 !important; color: #b7f5df !important; }
+
+/* stats tables + log */
+.scroll { overflow: auto; }
+table { width: 100%; border-collapse: collapse; font-size: 12px; white-space: nowrap; }
+td, th { padding: 9px 10px; text-align: left; border-bottom: 1px solid #262b38; }
+th { color: var(--faint); font-weight: 600; }
+#summary { padding: var(--s1) 0 var(--s2); font-size: 13px; color: #b9c1d3; }
+
+#log {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-height: 200px;
+  overflow: auto;
+  font: 11px/1.45 ui-monospace, Consolas, monospace;
+}
+.logitem { padding: 8px 10px; border-radius: 8px; background: #12151c; color: #b9c1d3; overflow-wrap: anywhere; }
+.warn { background: #3a1f2b; color: #ffb4bc; }
+
+/* ---------- 11. Settings that change the TV ---------- */
+body.large h1 { font-size: clamp(28px, 3.3vw, 47px); }
+body.large .sub { font-size: clamp(18px, 2vw, 28px); }
+body.large .setting { font-size: clamp(18px, 2vw, 29px); }
+body.large .label { font-size: clamp(17px, 2.1vw, 30px); }
+body.large .info p { font-size: clamp(16px, 1.7vw, 23px); }
+
+body.contrast #screen { background: #000; }
+body.contrast .tile,
+body.contrast .setting,
+body.contrast .info,
+body.contrast .fake { background: #000; border: 2px solid #fff; color: #fff; }
+body.contrast .tile.selected,
+body.contrast .setting.selected { border: 4px solid #ffda4f; background: #000; color: #fff; }
+body.contrast .setting.selected .value { color: #fff; }
+body.contrast .tile { background: #000; }
+body.contrast .menuitem.selected { background: #000; color: #fff; border-color: #ffda4f; }
+body.contrast .sub,
+body.contrast .value,
+body.contrast .info p,
+body.contrast .screenfoot,
+body.contrast .screenbar { color: #fff; }
+
+/* ---------- 12. Responsive + motion ---------- */
+@media (max-width: 1000px) {
+  .layout.presenter { grid-template-columns: 1fr; }
+  .presenter .tvcol { position: static; }
+  .presenter #presenter { max-width: 760px; width: 100%; margin: 0 auto; }
+}
+
+@media (max-width: 620px) {
+  header { padding: 0 var(--s2); height: 64px; }
+  .brand { font-size: 16px; }
+  .badge { font-size: 0; padding: 8px 10px; }
+  .badge::first-letter { font-size: 14px; }
+  .layout,
+  .layout.presenter { padding: var(--s2); gap: var(--s2); grid-template-columns: minmax(0, 1fr); }
+  .brand strong,
+  #toggle kbd { display: none; }
+  #toggle { padding: 8px 12px; font-size: 13px; }
+
+  /* the TV needs more height than 16:9 on a phone */
+  #screen { aspect-ratio: auto; height: 600px; }
+  #content { padding: 14% 5% 4%; }
+  .grid { grid-template-columns: repeat(2, 1fr); }
+  .tile { aspect-ratio: auto; padding: 12px; gap: 12px; }
+  .ico { flex: 0 0 38px; width: 38px; }
+  .settingslayout { grid-template-columns: 1fr; gap: 12px; }
+  .info { padding: 16px; }
+  .contenttiles { grid-template-columns: repeat(2, 1fr); }
+  .menu-overlay { grid-template-columns: repeat(2, 1fr); grid-template-rows: auto repeat(9, auto); padding: 14% 5% 4%; }
+  #frame { padding: 6px; border-radius: 16px; }
+  .card { padding: var(--s2); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * { transition: none !important; animation: none !important; }
+}

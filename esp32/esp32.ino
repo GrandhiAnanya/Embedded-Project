@@ -5,12 +5,12 @@
 
 // ================= WIFI =================
 
-const char* WIFI_SSID = "";
-const char* WIFI_PASSWORD = "";
+const char* WIFI_SSID = "Redmi Note 12 Pro 5G";
+const char* WIFI_PASSWORD = "Ananya@2006";
 
 // Enter your laptop's IPv4 address.
 // Example: 192.168.1.10
-const char* SERVER_IP = "172.20.125.34";
+const char* SERVER_IP = "10.27.62.34";
 
 const uint16_t SERVER_PORT = 8080;
 const char* WS_PATH = "/remote";
@@ -144,17 +144,36 @@ void sendEvent(String eventName) {
 
 // ================= TASK MENU =================
 
+
 void openTaskMenu() {
+
   if (!connected) {
     Serial.println("Website not connected");
     return;
   }
 
+  if (taskCount == 0) {
+    Serial.println("No tasks available");
+    return;
+  }
+
   menuOpen = true;
 
-  if (taskCount > 0) {
-    selectedTask = constrain(selectedTask, 0, taskCount - 1);
+  // Start at the first task every time
+  selectedTask = 0;
+
+  Serial.println();
+  Serial.println("===== TASK MENU =====");
+
+  for (int i = 0; i < taskCount; i++) {
+
+    Serial.print(i);
+    Serial.print(" : ");
+    Serial.println(taskNames[i]);
+
   }
+
+  printSelectedTask();
 
   StaticJsonDocument<150> doc;
 
@@ -162,12 +181,15 @@ void openTaskMenu() {
   doc["selected"] = selectedTask;
 
   String message;
+
   serializeJson(doc, message);
 
   webSocket.sendTXT(message);
 
   Serial.println("Task menu opened");
+
 }
+
 
 void printSelectedTask() {
   if (taskCount == 0) {
@@ -181,7 +203,9 @@ void printSelectedTask() {
 
 // ================= TASK START =================
 
+
 void startSelectedTask() {
+
   if (taskCount == 0) {
     Serial.println("No tasks available");
     return;
@@ -192,10 +216,20 @@ void startSelectedTask() {
     return;
   }
 
-  StaticJsonDocument<200> doc;
+  StaticJsonDocument<1024> doc;
 
   doc["event"] = "task_start";
   doc["task"] = taskIds[selectedTask];
+
+  // Send the original task steps for now.
+  // The website will calculate the correct steps.
+  JsonArray steps = doc.createNestedArray("steps");
+
+  for (int i = 0; i < taskStepCount[selectedTask]; i++) {
+    steps.add(buttonNames[
+      taskSteps[selectedTask][i]
+    ]);
+  }
 
   String message;
   serializeJson(doc, message);
@@ -205,6 +239,7 @@ void startSelectedTask() {
   Serial.print("Starting task: ");
   Serial.println(taskNames[selectedTask]);
 }
+
 
 // ================= TASK GUIDANCE =================
 
@@ -304,6 +339,7 @@ void handleTaskButton(int buttonIndex) {
 void receiveTasks(JsonArray tasks) {
 
   taskCount = 0;
+  selectedTask = 0;
 
   for (JsonObject task : tasks) {
 
@@ -408,6 +444,7 @@ void webSocketEvent(
       }
 
       // Website starts selected task
+      
       else if (eventName == "task_start") {
 
         String taskId = doc["task"] | "";
@@ -417,16 +454,42 @@ void webSocketEvent(
         for (int i = 0; i < taskCount; i++) {
 
           if (taskIds[i] == taskId) {
-
             activeTask = i;
-
             break;
           }
         }
 
         if (activeTask >= 0) {
 
+          // Reset the task execution
           currentStep = 0;
+
+          // Use dynamically generated steps
+          JsonArray steps = doc["steps"];
+
+          if (!steps.isNull()) {
+
+            taskStepCount[activeTask] = 0;
+
+            for (JsonVariant step : steps) {
+
+              if (taskStepCount[activeTask] >= 50) {
+                break;
+              }
+
+              String stepName = step.as<String>();
+
+              int index = buttonIndexFromName(stepName);
+
+              if (index >= 0) {
+
+                taskSteps[activeTask]
+                        [taskStepCount[activeTask]] = index;
+
+                taskStepCount[activeTask]++;
+              }
+            }
+          }
 
           menuOpen = false;
 
@@ -440,6 +503,7 @@ void webSocketEvent(
           Serial.println("Unknown task received");
         }
       }
+
 
       // Website changes guided mode
       else if (eventName == "mode") {
