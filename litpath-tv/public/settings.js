@@ -164,5 +164,5 @@ window.TVSettings = (() => {
 
   function init(o) { send = o.send; rerender = o.render; current = o.current; apply(); }
 
-  return { init, press, values, info, onMessage, remoteStatus, sound };
+  return { init, press, values, info, onMessage, remoteStatus, sound, getSoundMode: () => s.soundMode};
 })();

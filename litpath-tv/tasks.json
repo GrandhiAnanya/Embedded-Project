@@ -126,4 +126,228 @@
       "setting": "Brightness"
     }
   }
+
+  
+,
+{
+  "id": "CHANGE_PICTURE_MODE",
+  "name": "Change Picture Mode",
+  "category": "SETTINGS",
+  "steps": [
+    "home",
+    "down",
+    "down",
+    "ok",
+    "ok"
+  ],
+  "goal": {
+    "screen": "SETTINGS_SUB",
+    "category": "Picture",
+    "setting": "Picture Mode"
+  }
+},
+{
+  "id": "CHANGE_VOLUME",
+  "name": "Change Volume",
+  "category": "SETTINGS",
+  "steps": [
+    "home",
+    "down",
+    "down",
+    "ok",
+    "down",
+    "ok",
+    "down",
+    "ok"
+  ],
+  "goal": {
+    "screen": "SETTINGS_SUB",
+    "category": "Sound",
+    "setting": "Volume"
+  }
+},
+
+{
+  "id": "MUTE_TV",
+  "name": "Mute TV",
+  "category": "SETTINGS",
+  "steps": [
+    "home",
+    "down",
+    "down",
+    "ok",
+    "down",
+    "ok",
+    "right",
+    "right"
+  ],
+  "goal": {
+    "screen": "SETTINGS_SUB",
+    "category": "Sound",
+    "setting": "Sound Mode",
+    "value": "Mute"
+  }
+},
+{
+  "id": "CHANGE_AUDIO_OUTPUT",
+  "name": "Change Audio Output",
+  "category": "SETTINGS",
+  "steps": [
+    "home",
+    "down",
+    "down",
+    "ok",
+    "down",
+    "ok",
+    "down",
+    "down",
+    "ok"
+  ],
+  "goal": {
+    "screen": "SETTINGS_SUB",
+    "category": "Sound",
+    "setting": "Audio Output"
+  }
+},
+{
+  "id": "CONNECT_WIFI",
+  "name": "Connect Wi-Fi",
+  "category": "SETTINGS",
+  "steps": [
+    "home",
+    "down",
+    "down",
+    "ok",
+    "down",
+    "down",
+    "ok",
+    "ok"
+  ],
+  "goal": {
+    "screen": "SETTINGS_SUB",
+    "category": "Network",
+    "setting": "Wi-Fi"
+  }
+},
+{
+  "id": "RUN_NETWORK_TEST",
+  "name": "Run Network Test",
+  "category": "SETTINGS",
+  "steps": [
+    "home",
+    "down",
+    "down",
+    "ok",
+    "down",
+    "down",
+    "ok",
+    "down",
+    "down",
+    "ok"
+  ],
+  "goal": {
+    "screen": "SETTINGS_SUB",
+    "category": "Network",
+    "setting": "Network Test"
+  }
+}
+
+,
+{
+  "id": "LARGE_TEXT_ON",
+  "name": "Turn on Large Text",
+  "category": "SETTINGS",
+  "steps": [
+    "home",
+    "down",
+    "down",
+    "ok",
+    "down",
+    "down",
+    "down",
+    "ok",
+    "down",
+    "ok"
+  ],
+  "goal": {
+    "screen": "SETTINGS_SUB",
+    "category": "Accessibility",
+    "setting": "Large Text",
+    "value": true
+  }
+},
+{
+  "id": "LARGE_TEXT_OFF",
+  "name": "Turn off Large Text",
+  "category": "SETTINGS",
+  "steps": [
+    "home",
+    "down",
+    "down",
+    "ok",
+    "down",
+    "down",
+    "down",
+    "ok",
+    "down",
+    "ok"
+  ],
+  "goal": {
+    "screen": "SETTINGS_SUB",
+    "category": "Accessibility",
+    "setting": "Large Text",
+    "value": false
+  }
+},
+{
+  "id": "HIGH_CONTRAST_ON",
+  "name": "Turn on High Contrast",
+  "category": "SETTINGS",
+  "steps": [
+    "home",
+    "down",
+    "down",
+    "ok",
+    "down",
+    "down",
+    "down",
+    "ok",
+    "down",
+    "down",
+    "ok"
+  ],
+  "goal": {
+    "screen": "SETTINGS_SUB",
+    "category": "Accessibility",
+    "setting": "High Contrast",
+    "value": true
+  }
+},
+{
+  "id": "HIGH_CONTRAST_OFF",
+  "name": "Turn off High Contrast",
+  "category": "SETTINGS",
+  "steps": [
+    "home",
+    "down",
+    "down",
+    "ok",
+    "down",
+    "down",
+    "down",
+    "ok",
+    "down",
+    "down",
+    "ok"
+  ],
+  "goal": {
+    "screen": "SETTINGS_SUB",
+    "category": "Accessibility",
+    "setting": "High Contrast",
+    "value": false
+  }
+}
 ]
+
+
+

@@ -2,16 +2,16 @@
   'use strict';
   const $ = id => document.getElementById(id);
   const names = [
-      'Prime',
-      'Netflix',
-      'YouTube',
-      'Music',
-      'Photos',
-      'Live TV',
-      'Settings',
-      'Browser',
-      'Games',
-    ],
+    'Prime',
+    'Netflix',
+    'YouTube',
+    'Music',
+    'Photos',
+    'Live TV',
+    'Settings',
+    'Browser',
+    'Games',
+  ],
     icons = ['P', 'N', '▶', '♫', '✿', '▣', '⚙', '◎', '◆'],
     colors = [
       '#1677c8',
@@ -46,6 +46,13 @@
     large = false,
     contrast = false;
   const allowed = ['home', 'up', 'down', 'left', 'right', 'ok', 'back'];
+  let soundMode = 'Standard';
+
+  const soundModes = [
+    'Standard',
+    'Beep Only',
+    'Mute'
+  ];
   function initial() {
     return { screen: 'HOME', row: 0, col: 0, app: null, setting: 0, sub: 0, category: null };
   }
@@ -132,20 +139,20 @@
             : TVSettings.values(cat);
       c.innerHTML = `<div class="settings"><h1>${state.screen === 'SETTINGS' ? 'Settings' : safe(cat)}</h1><p class="sub">${state.screen === 'SETTINGS' ? 'Make your TV work for you' : 'Personalise your viewing experience'}</p><div class="settingslayout"><div>${(state.screen === 'SETTINGS' ? cats : opts).map((x, i) => `<div class="setting ${i === (state.screen === 'SETTINGS' ? state.setting : state.sub) ? 'selected' : ''}"><span>${x}</span><span class="value">${state.screen === 'SETTINGS' ? '›' : cat === 'Accessibility' ? vals[i] : vals[i] || '›'}</span></div>`).join('')}</div><div class="info"><h2>${safe(state.screen === 'SETTINGS' ? cat : opts[state.sub])}</h2><p>${cat === 'Accessibility' ? (state.sub === 0 ? (subtitle ? 'Subtitles are enabled.' : 'Subtitles are disabled.') : state.sub === 1 ? (large ? 'Large text is enabled.' : 'Large text is disabled.') : contrast ? 'High contrast is enabled.' : 'High contrast is disabled.') : TVSettings.info(cat, state.screen === 'SETTINGS' ? -1 : state.sub)}</p></div></div><div class="screenfoot"><span>Accessibility and preferences</span><span>SETTINGS</span></div></div>`;
     }
-    
-if (menu) {
-  let old = $('taskmenu');
 
-  if (old) old.remove();
+    if (menu) {
+      let old = $('taskmenu');
 
-  let visibleTasks = getVisibleTasks();
+      if (old) old.remove();
 
-  let ov = document.createElement('div');
+      let visibleTasks = getVisibleTasks();
 
-  ov.id = 'taskmenu';
-  ov.className = 'menu-overlay';
+      let ov = document.createElement('div');
 
-  ov.innerHTML = `
+      ov.id = 'taskmenu';
+      ov.className = 'menu-overlay';
+
+      ov.innerHTML = `
     <h2>What would you like to do?</h2>
 
     ${visibleTasks.map((t, i) => `
@@ -158,8 +165,8 @@ if (menu) {
     `).join('')}
   `;
 
-  c.appendChild(ov);
-}
+      c.appendChild(ov);
+    }
 
   }
   function mirror(button, kind = 'lit') {
@@ -185,146 +192,231 @@ if (menu) {
     $('status').textContent = connected ? '● Remote connected' : '● Waiting for remote...';
     $('status').classList.toggle('on', connected);
   }
-  
-function getTaskSteps(task) {
-  const g = task.goal;
 
-  // Keep existing steps for HOME tasks
-  if (task.category === 'HOME') {
-    return [...task.steps];
-  }
+  function getTaskSteps(task) {
+    const g = task.goal;
+    let steps = [];
 
-  let steps = [];
-
-  // Navigate to Settings only if we are not already there
-  if (state.screen === 'HOME') {
-    steps.push('down', 'down', 'ok');
-  }
-
-  // Navigate to the required Settings category
-  const categories = [
-    'Picture',
-    'Sound',
-    'Network',
-    'Accessibility'
-  ];
-
-  if (g.category) {
-    let currentCategory =
-      state.screen === 'SETTINGS'
-        ? categories[state.setting]
-        : state.category;
-
-    if (state.screen !== 'SETTINGS_SUB' ||
-        currentCategory !== g.category) {
-
-      if (state.screen === 'SETTINGS_SUB') {
-        steps.push('back');
-      }
-
-      let target = categories.indexOf(g.category);
-
-      if (target >= 0) {
-        let current = state.screen === 'SETTINGS'
-          ? state.setting
-          : 0;
-
-        while (current < target) {
-          steps.push('down');
-          current++;
-        }
-
-        while (current > target) {
-          steps.push('up');
-          current--;
-        }
-
-        steps.push('ok');
-      }
+    // Keep existing steps for HOME tasks
+    if (
+      task.category === 'HOME' ||
+      task.category === 'GENERAL'
+    ) {
+      return [...task.steps];
     }
-  }
 
-  // Navigate to the required setting
-  if (g.setting) {
-    const options =
-      g.category === 'Accessibility'
-        ? ['Subtitles', 'Large Text', 'High Contrast']
-        : g.category === 'Picture'
-          ? ['Picture Mode', 'Brightness', 'Colour']
-          : [];
+    let screen = state.screen;
+    let row = state.row;
+    let col = state.col;
+    let setting = state.setting;
+    let category = state.category;
+    let sub = state.sub;
 
-    let target = options.indexOf(g.setting);
+    // If currently inside an app, return to Home
+    if (screen === 'APP') {
+      steps.push('back');
 
-    if (target >= 0) {
-      let current = 0;
+      const appIndex = names.indexOf(state.app);
+      row = Math.floor(appIndex / 3);
+      col = appIndex % 3;
+      screen = 'HOME';
+    }
 
-      if (
-        state.screen === 'SETTINGS_SUB' &&
-        state.category === g.category
-      ) {
-        current = state.sub;
-      }
-
-      while (current < target) {
+    // Navigate from Home to Settings
+    if (screen === 'HOME') {
+      while (row < 2) {
         steps.push('down');
-        current++;
+        row++;
       }
 
-      while (current > target) {
+      while (row > 2) {
         steps.push('up');
-        current--;
+        row--;
+      }
+
+      while (col > 0) {
+        steps.push('left');
+        col--;
       }
 
       steps.push('ok');
+
+      screen = 'SETTINGS';
+      setting = 0;
     }
+
+    // Return to Settings if currently inside another category
+    if (screen === 'SETTINGS_SUB' && category !== g.category) {
+      steps.push('back');
+
+      setting = [
+        'Picture',
+        'Sound',
+        'Network',
+        'Accessibility'
+      ].indexOf(category);
+
+      screen = 'SETTINGS';
+    }
+
+    // Navigate to the required category
+    const categories = [
+      'Picture',
+      'Sound',
+      'Network',
+      'Accessibility'
+    ];
+
+    const targetCategory = categories.indexOf(g.category);
+
+    if (screen === 'SETTINGS') {
+      while (setting < targetCategory) {
+        steps.push('down');
+        setting++;
+      }
+
+      while (setting > targetCategory) {
+        steps.push('up');
+        setting--;
+      }
+
+      steps.push('ok');
+
+      screen = 'SETTINGS_SUB';
+      category = g.category;
+      sub = 0;
+    }
+
+    // Navigate to the required setting
+    const options = {
+      Picture: ['Picture Mode', 'Brightness', 'Colour'],
+      Sound: ['Sound Mode', 'Volume', 'Audio Output'],
+      Network: ['Wi-Fi', 'Connection Status', 'Network Test'],
+      Accessibility: ['Subtitles', 'Large Text', 'High Contrast']
+    };
+
+    const targetSub = options[g.category].indexOf(g.setting);
+
+    if (targetSub >= 0) {
+      while (sub < targetSub) {
+        steps.push('down');
+        sub++;
+      }
+
+      while (sub > targetSub) {
+        steps.push('up');
+        sub--;
+      }
+    }
+
+    // Special logic for the Mute TV task
+    if (
+      g.category === 'Sound' &&
+      g.setting === 'Sound Mode' &&
+      g.value === 'Mute'
+    ) {
+      const modes = ['Standard', 'Beeps Only', 'Mute'];
+      const currentMode = TVSettings.getSoundMode();
+
+      const currentIndex = modes.indexOf(currentMode);
+      const targetIndex = modes.indexOf('Mute');
+
+      if (currentIndex !== -1 && currentIndex !== targetIndex) {
+        const rightSteps =
+          (targetIndex - currentIndex + modes.length) % modes.length;
+
+        const leftSteps =
+          (currentIndex - targetIndex + modes.length) % modes.length;
+
+        if (rightSteps <= leftSteps) {
+          for (let i = 0; i < rightSteps; i++) {
+            steps.push('right');
+          }
+        } else {
+          for (let i = 0; i < leftSteps; i++) {
+            steps.push('left');
+          }
+        }
+      }
+    }
+
+    // Accessibility settings require OK to toggle
+    else if (g.category === 'Accessibility') {
+      if (
+        g.setting === 'Subtitles' &&
+        subtitle !== g.value
+      ) {
+        steps.push('ok');
+      }
+
+      if (
+        g.setting === 'Large Text' &&
+        large !== g.value
+      ) {
+        steps.push('ok');
+      }
+
+      if (
+        g.setting === 'High Contrast' &&
+        contrast !== g.value
+      ) {
+        steps.push('ok');
+      }
+    }
+
+    return steps;
   }
 
-  return steps;
-}
 
- 
-function startTask(id, mode = 'demo') {
-  task = tasks.find(t => t.id === id);
+  function startTask(id, mode = 'demo') {
+    task = tasks.find(t => t.id === id);
 
-  if (!task) return;
+    if (!task) return;
 
-  // Generate steps from the current screen
-  task = {
-    ...task,
-    steps: getTaskSteps(task)
-  };
+    // Generate steps from the current screen
+    task = {
+      ...task,
+      steps: getTaskSteps(task)
+    };
 
-  step = 0;
-  wrong = 0;
-  hints = 0;
-  start = Date.now();
-  runMode = mode;
-  menu = false;
+    step = 0;
+    wrong = 0;
+    hints = 0;
+    start = Date.now();
+    runMode = mode;
+    menu = false;
 
-  // IMPORTANT:
-  // Do not reset state to HOME here
-  // state = initial();  <-- REMOVE THIS
+    // IMPORTANT:
+    // Do not reset state to HOME here
+    // state = initial();  <-- REMOVE THIS
 
-  $('chip').textContent = 'Goal: ' + task.name;
-  $('chip').classList.remove('hidden');
-  $('success').classList.add('hidden');
+    $('chip').textContent = 'Goal: ' + task.name;
+    $('chip').classList.remove('hidden');
+    $('success').classList.add('hidden');
 
-  render();
-  stepsRender();
+    render();
+    stepsRender();
 
-  if (demo && guided && task.steps.length > 0) {
-    mirror(task.steps[0]);
+    // If the required setting is already active,
+    // complete the task without asking for extra buttons.
+    if (task.steps.length === 0) {
+      complete(task.id, runMode);
+      return;
+    }
+
+    if (demo && guided && task.steps.length > 0) {
+      mirror(task.steps[0]);
+    }
+
+    // Send the dynamically generated steps to ESP32
+    send({
+      event: 'task_start',
+      task: task.id,
+      steps: task.steps
+    });
+
+    addLog('local', `task_start ${task.id}`);
   }
-
-  // Send the dynamically generated steps to ESP32
-  send({
-    event: 'task_start',
-    task: task.id,
-    steps: task.steps
-  });
-
-  addLog('local', `task_start ${task.id}`);
-}
 
   function stepsRender() {
     if (!task) {
@@ -342,10 +434,38 @@ function startTask(id, mode = 'demo') {
   }
   function goalOK(t) {
     let g = t.goal;
-    if (g.app) return state.screen === 'APP' && state.app === g.app;
-    if (g.screen && state.screen !== g.screen) return false;
-    if (g.category && state.category !== g.category) return false;
-    if (g.setting === 'Subtitles' && subtitle !== g.value) return false;
+
+    if (g.app) {
+      return state.screen === 'APP' && state.app === g.app;
+    }
+
+    if (g.screen && state.screen !== g.screen) {
+      return false;
+    }
+
+    if (g.category && state.category !== g.category) {
+      return false;
+    }
+
+    if (g.setting === 'Subtitles' && subtitle !== g.value) {
+      return false;
+    }
+
+    if (g.setting === 'Large Text' && large !== g.value) {
+      return false;
+    }
+
+    if (g.setting === 'High Contrast' && contrast !== g.value) {
+      return false;
+    }
+
+    if (
+      g.setting === 'Sound Mode' &&
+      TVSettings.getSoundMode() !== g.value
+    ) {
+      return false;
+    }
+
     return true;
   }
   function complete(id, mode = runMode) {
@@ -380,59 +500,59 @@ function startTask(id, mode = 'demo') {
       addLog('warning', 'Unknown action ignored', true);
       return;
     }
-    
-if (menu) {
 
-  const visibleTasks = getVisibleTasks();
+    if (menu) {
 
-  if (visibleTasks.length === 0) {
-    menu = false;
-    render();
-    return;
-  }
+      const visibleTasks = getVisibleTasks();
 
-  if (a === 'up') {
+      if (visibleTasks.length === 0) {
+        menu = false;
+        render();
+        return;
+      }
 
-    menuIndex = Math.max(0, menuIndex - 1);
+      if (a === 'up') {
 
-  }
+        menuIndex = Math.max(0, menuIndex - 1);
 
-  else if (a === 'down') {
+      }
 
-    menuIndex = Math.min(
-      visibleTasks.length - 1,
-      menuIndex + 1
-    );
+      else if (a === 'down') {
 
-  }
+        menuIndex = Math.min(
+          visibleTasks.length - 1,
+          menuIndex + 1
+        );
 
-  else if (a === 'ok') {
+      }
 
-    const selectedTask = visibleTasks[menuIndex];
+      else if (a === 'ok') {
 
-    if (selectedTask) {
+        const selectedTask = visibleTasks[menuIndex];
 
-      menu = false;
+        if (selectedTask) {
 
-      startTask(selectedTask.id);
+          menu = false;
+
+          startTask(selectedTask.id);
+
+        }
+
+        return;
+
+      }
+
+      else if (a === 'back' || a === 'home') {
+
+        menu = false;
+
+      }
+
+      render();
+
+      return;
 
     }
-
-    return;
-
-  }
-
-  else if (a === 'back' || a === 'home') {
-
-    menu = false;
-
-  }
-
-  render();
-
-  return;
-
-}
 
     let before = JSON.stringify(state),
       expected = task && task.steps[step];
@@ -503,7 +623,7 @@ if (menu) {
   function saveStats() {
     try {
       localStorage.setItem('litpath.stats.v1', JSON.stringify(stats));
-    } catch {}
+    } catch { }
   }
   function setView(v) {
     view = v;
@@ -536,36 +656,36 @@ if (menu) {
         fillTasks();
         addLog('incoming', `${tasks.length} tasks received`);
       } else if (m.action) action(m.action, 'remote');
-      
 
-else if (m.event === 'menu') {
 
-  const visibleTasks = getVisibleTasks();
+      else if (m.event === 'menu') {
 
-  if (visibleTasks.length > 0) {
+        const visibleTasks = getVisibleTasks();
 
-    menu = true;
+        if (visibleTasks.length > 0) {
 
-    // Start from the first filtered task
-    menuIndex = 0;
+          menu = true;
 
-    // Send the filtered list to the ESP32
-    send({
-      event: 'tasks',
-      tasks: visibleTasks
-    });
+          // Start from the first filtered task
+          menuIndex = 0;
 
-  } else {
+          // Send the filtered list to the ESP32
+          send({
+            event: 'tasks',
+            tasks: visibleTasks
+          });
 
-    menu = false;
+        } else {
 
-  }
+          menu = false;
 
-  render();
+        }
 
-}
+        render();
 
-else if (m.event === 'task_start') startTask(m.task, guided ? 'guided' : 'unguided');
+      }
+
+      else if (m.event === 'task_start') startTask(m.task, guided ? 'guided' : 'unguided');
       else if (m.event === 'led') {
         mirror(m.button || 'none');
         addLog('incoming', 'led ' + m.button);
@@ -589,27 +709,27 @@ else if (m.event === 'task_start') startTask(m.task, guided ? 'guided' : 'unguid
     };
   }
 
-  
-function getVisibleTasks() {
-  if (state.screen === 'HOME') {
-    return tasks.filter(task =>
-      task.category === 'HOME' ||
-      task.category === 'GENERAL'
-    );
-  }
 
-  if (
-    state.screen === 'SETTINGS' ||
-    state.screen === 'SETTINGS_SUB'
-  ) {
-    return tasks.filter(task =>
-      task.category === 'SETTINGS' ||
-      task.category === 'GENERAL'
-    );
-  }
+  function getVisibleTasks() {
+    if (state.screen === 'HOME') {
+      return tasks.filter(task =>
+        task.category === 'HOME' ||
+        task.category === 'GENERAL'
+      );
+    }
 
-  return [];
-}
+    if (
+      state.screen === 'SETTINGS' ||
+      state.screen === 'SETTINGS_SUB'
+    ) {
+      return tasks.filter(task =>
+        task.category === 'SETTINGS' ||
+        task.category === 'GENERAL'
+      );
+    }
+
+    return [];
+  }
 
   function fillTasks() {
     const select = $('task');
@@ -640,28 +760,28 @@ function getVisibleTasks() {
     addLog('local', 'guided ' + guided);
   };
   $('start').onclick = () => startTask($('task').value, 'demo');
-  
-$('menu').onclick = () => {
 
-  setView(true);
+  $('menu').onclick = () => {
 
-  const visibleTasks = getVisibleTasks();
+    setView(true);
 
-  if (visibleTasks.length > 0) {
+    const visibleTasks = getVisibleTasks();
 
-    menu = true;
+    if (visibleTasks.length > 0) {
 
-    menuIndex = 0;
+      menu = true;
 
-  } else {
+      menuIndex = 0;
 
-    menu = false;
+    } else {
 
-  }
+      menu = false;
 
-  render();
+    }
 
-};
+    render();
+
+  };
 
   $('remote').onclick = e => {
     let b = e.target.closest('[data-key]');
@@ -704,9 +824,9 @@ $('menu').onclick = () => {
   };
   $('csv').onclick = () => {
     let rows = [
-        ['Task', 'ID', 'Time', 'Wrong', 'Hints', 'Mode', 'Timestamp'],
-        ...stats.map(x => [x.task, x.id, x.time, x.wrong, x.hints, x.mode, x.timestamp]),
-      ],
+      ['Task', 'ID', 'Time', 'Wrong', 'Hints', 'Mode', 'Timestamp'],
+      ...stats.map(x => [x.task, x.id, x.time, x.wrong, x.hints, x.mode, x.timestamp]),
+    ],
       csv = rows
         .map(r => r.map(v => '"' + String(v ?? '').replace(/"/g, '""') + '"').join(','))
         .join('\r\n'),
