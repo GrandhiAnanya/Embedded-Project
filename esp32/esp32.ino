@@ -624,6 +624,7 @@ void webSocketEvent(
 
 // ================= BUTTON HANDLING =================
 
+
 void handleButtonPress(int buttonIndex) {
 
   unsigned long now = millis();
@@ -640,7 +641,8 @@ void handleButtonPress(int buttonIndex) {
   // Task selection menu
   if (menuOpen) {
 
-    if (buttonIndex == 1) {  // UP
+    // UP or LEFT = Previous task
+    if (buttonIndex == 1 || buttonIndex == 3) {
 
       selectedTask--;
 
@@ -649,12 +651,11 @@ void handleButtonPress(int buttonIndex) {
       }
 
       printSelectedTask();
-
-      sendAction("up");
-
+      sendAction(buttonNames[buttonIndex]);
     }
 
-    else if (buttonIndex == 2) {  // DOWN
+    // DOWN or RIGHT = Next task
+    else if (buttonIndex == 2 || buttonIndex == 4) {
 
       selectedTask++;
 
@@ -663,25 +664,21 @@ void handleButtonPress(int buttonIndex) {
       }
 
       printSelectedTask();
-
-      sendAction("down");
-
+      sendAction(buttonNames[buttonIndex]);
     }
 
-    else if (buttonIndex == 5) {  // OK
+    // OK = Select task
+    else if (buttonIndex == 5) {
 
       menuOpen = false;
-
       startSelectedTask();
-
     }
 
+    // BACK or HOME = Close menu
     else if (buttonIndex == 6 || buttonIndex == 0) {
 
       menuOpen = false;
-
       sendAction(buttonNames[buttonIndex]);
-
     }
 
     return;
@@ -691,7 +688,6 @@ void handleButtonPress(int buttonIndex) {
   if (buttonIndex == 0 && activeTask < 0) {
 
     openTaskMenu();
-
     return;
   }
 
@@ -699,7 +695,6 @@ void handleButtonPress(int buttonIndex) {
   if (activeTask >= 0) {
 
     handleTaskButton(buttonIndex);
-
     return;
   }
 
@@ -707,6 +702,7 @@ void handleButtonPress(int buttonIndex) {
   correctBeep();
   sendAction(buttonNames[buttonIndex]);
 }
+
 
 // ================= BUZZER =================
 // Volume = PWM duty. ledcWriteTone() switches the channel to 10-bit, so 512 = 50% = loudest.
