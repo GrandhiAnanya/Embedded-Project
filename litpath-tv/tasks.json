@@ -37,15 +37,6 @@
     }
   },
   {
-    "id": "GO_BACK",
-    "name": "Go back",
-    "category": "GENERAL",
-    "steps": ["back"],
-    "goal": {
-      "previous": true
-    }
-  },
-  {
     "id": "SUBTITLES_ON",
     "name": "Turn on subtitles",
     "category": "SETTINGS",

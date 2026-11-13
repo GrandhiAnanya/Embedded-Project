@@ -5,8 +5,8 @@
 
 // ================= WIFI =================
 
-const char* WIFI_SSID = "";
-const char* WIFI_PASSWORD = "";
+const char* WIFI_SSID = "Redmi Note 12 Pro 5G";
+const char* WIFI_PASSWORD = "Ananya@2006";
 
 // Enter your laptop's IPv4 address.
 // Example: 192.168.1.10
@@ -18,25 +18,25 @@ const char* WS_PATH = "/remote";
 // ================= BUTTON PINS =================
 
 const int buttonPins[7] = {
-  4,    // HOME
-  5,    // UP
-  13,   // DOWN
-  14,   // LEFT
-  27,   // RIGHT
-  32,   // OK
-  33    // BACK
+  4,   // HOME
+  5,   // UP
+  13,  // DOWN
+  14,  // LEFT
+  27,  // RIGHT
+  32,  // OK
+  33   // BACK
 };
 
 // ================= LED PINS =================
 
 const int ledPins[7] = {
-  18,   // HOME LED
-  19,   // UP LED
-  21,   // DOWN LED
-  22,   // LEFT LED
-  23,   // RIGHT LED
-  25,   // OK LED
-  26    // BACK LED
+  18,  // HOME LED
+  19,  // UP LED
+  21,  // DOWN LED
+  22,  // LEFT LED
+  23,  // RIGHT LED
+  25,  // OK LED
+  26   // BACK LED
 };
 
 
@@ -76,19 +76,22 @@ int taskCount = 0;
 int activeTask = -1;
 int currentStep = 0;
 
-unsigned long lastButtonTime[7] = {0};
+// Tracks whether the cancellation dialog is open on the website
+bool cancelDialogOpen = false;
+
+unsigned long lastButtonTime[7] = { 0 };
 
 const unsigned long debounceDelay = 250;
 
 
 // ================= SETTINGS FROM TV =================
 
-int ledBrightness = 100;      // 0-100, from Picture > Brightness
-int buzzerVolume = 7;         // 0-10, from Sound > Volume
-bool buzzerEnabled = true;    // false when Sound Mode is Mute or Audio Output is TV Speaker
-bool clickSounds = true;      // short blip on correct presses (Sound Mode: Standard)
+int ledBrightness = 100;    // 0-100, from Picture > Brightness
+int buzzerVolume = 7;       // 0-10, from Sound > Volume
+bool buzzerEnabled = true;  // false when Sound Mode is Mute or Audio Output is TV Speaker
+bool clickSounds = true;    // short blip on correct presses (Sound Mode: Standard)
 
-int litLED = -1;              // LED currently lit, -1 = none
+int litLED = -1;  // LED currently lit, -1 = none
 unsigned long previewUntil = 0;
 
 unsigned long connectedSince = 0;
@@ -211,7 +214,6 @@ void openTaskMenu() {
     Serial.print(i);
     Serial.print(" : ");
     Serial.println(taskNames[i]);
-
   }
 
   printSelectedTask();
@@ -228,7 +230,6 @@ void openTaskMenu() {
   webSocket.sendTXT(message);
 
   Serial.println("Task menu opened");
-
 }
 
 
@@ -267,9 +268,7 @@ void startSelectedTask() {
   JsonArray steps = doc.createNestedArray("steps");
 
   for (int i = 0; i < taskStepCount[selectedTask]; i++) {
-    steps.add(buttonNames[
-      taskSteps[selectedTask][i]
-    ]);
+    steps.add(buttonNames[taskSteps[selectedTask][i]]);
   }
 
   String message;
@@ -346,7 +345,6 @@ void handleTaskButton(int buttonIndex) {
     } else {
 
       updateGuidedLED();
-
     }
 
   } else {
@@ -362,19 +360,19 @@ void handleTaskButton(int buttonIndex) {
     // Inform the website
     if (connected) {
 
-        StaticJsonDocument<150> doc;
+      StaticJsonDocument<150> doc;
 
-        doc["event"] = "wrong";
-        doc["pressed"] = buttonNames[buttonIndex];
-        doc["expected"] = buttonNames[expectedButton];
+      doc["event"] = "wrong";
+      doc["pressed"] = buttonNames[buttonIndex];
+      doc["expected"] = buttonNames[expectedButton];
 
-        String message;
+      String message;
 
-        serializeJson(doc, message);
+      serializeJson(doc, message);
 
-        webSocket.sendTXT(message);
+      webSocket.sendTXT(message);
     }
-}
+  }
 }
 
 // ================= TASK LIST RECEIVED =================
@@ -436,8 +434,7 @@ void receiveTasks(JsonArray tasks) {
 void webSocketEvent(
   WStype_t type,
   uint8_t* payload,
-  size_t length
-) {
+  size_t length) {
 
   switch (type) {
 
@@ -466,156 +463,204 @@ void webSocketEvent(
 
       break;
 
-    case WStype_TEXT: {
+    case WStype_TEXT:
+      {
 
-      StaticJsonDocument<4096> doc;
+        StaticJsonDocument<4096> doc;
 
-      DeserializationError error =
-        deserializeJson(doc, payload, length);
+        DeserializationError error =
+          deserializeJson(doc, payload, length);
 
-      if (error) {
-        Serial.println("Invalid JSON received");
-        return;
-      }
-
-      String eventName = doc["event"] | "";
-
-      // Receive task list
-      if (eventName == "tasks") {
-
-        JsonArray tasks = doc["tasks"];
-
-        receiveTasks(tasks);
-
-      }
-
-      // Website starts selected task
-      
-      else if (eventName == "task_start") {
-
-        String taskId = doc["task"] | "";
-
-        activeTask = -1;
-
-        for (int i = 0; i < taskCount; i++) {
-
-          if (taskIds[i] == taskId) {
-            activeTask = i;
-            break;
-          }
+        if (error) {
+          Serial.println("Invalid JSON received");
+          return;
         }
 
-        if (activeTask >= 0) {
+        String eventName = doc["event"] | "";
 
-          // Reset the task execution
-          currentStep = 0;
+        // Receive task list
+        if (eventName == "tasks") {
 
-          // Use dynamically generated steps
-          JsonArray steps = doc["steps"];
+          JsonArray tasks = doc["tasks"];
 
-          if (!steps.isNull()) {
+          receiveTasks(tasks);
 
-            taskStepCount[activeTask] = 0;
+        }
 
-            for (JsonVariant step : steps) {
+        // Website starts selected task
 
-              if (taskStepCount[activeTask] >= 50) {
-                break;
-              }
+        else if (eventName == "task_start") {
 
-              String stepName = step.as<String>();
+          String taskId = doc["task"] | "";
 
-              int index = buttonIndexFromName(stepName);
+          activeTask = -1;
 
-              if (index >= 0) {
+          for (int i = 0; i < taskCount; i++) {
 
-                taskSteps[activeTask]
-                        [taskStepCount[activeTask]] = index;
-
-                taskStepCount[activeTask]++;
-              }
+            if (taskIds[i] == taskId) {
+              activeTask = i;
+              break;
             }
           }
 
-          menuOpen = false;
+          if (activeTask >= 0) {
 
-          Serial.print("Task started: ");
-          Serial.println(taskNames[activeTask]);
+            // Reset the task execution
+            currentStep = 0;
 
-          updateGuidedLED();
+            // Use dynamically generated steps
+            JsonArray steps = doc["steps"];
 
-        } else {
+            if (!steps.isNull()) {
 
-          Serial.println("Unknown task received");
+              taskStepCount[activeTask] = 0;
+
+              for (JsonVariant step : steps) {
+
+                if (taskStepCount[activeTask] >= 50) {
+                  break;
+                }
+
+                String stepName = step.as<String>();
+
+                int index = buttonIndexFromName(stepName);
+
+                if (index >= 0) {
+
+                  taskSteps[activeTask]
+                           [taskStepCount[activeTask]] = index;
+
+                  taskStepCount[activeTask]++;
+                }
+              }
+            }
+
+            menuOpen = false;
+
+            Serial.print("Task started: ");
+            Serial.println(taskNames[activeTask]);
+
+            updateGuidedLED();
+
+          } else {
+
+            Serial.println("Unknown task received");
+          }
         }
-      }
 
+        // Website cancels the active task
+        else if (eventName == "task_cancel") {
 
-      // Website changes guided mode
-      else if (eventName == "mode") {
+          Serial.println("Task cancelled by user");
 
-        guidedMode = doc["guided"] | true;
+          // Stop the active task
+          activeTask = -1;
+          currentStep = 0;
 
-        if (!guidedMode) {
+          // Turn off all guidance LEDs
           allLEDsOff();
-        } else {
-          updateGuidedLED();
-        }
-      }
 
-            // TV settings: LED brightness, buzzer volume and sound mode
-      else if (eventName == "remote_settings") {
-
-        int newBrightness = constrain((int)(doc["brightness"] | ledBrightness), 0, 100);
-
-        buzzerVolume = constrain((int)(doc["volume"] | buzzerVolume), 0, 10);
-        buzzerEnabled = doc["buzzer"] | true;
-        clickSounds = doc["clicks"] | true;
-
-        if (newBrightness != ledBrightness) {
-          ledBrightness = newBrightness;
-          previewBrightness();
+          Serial.println("Task stopped successfully");
         }
 
-        if (doc["test"] | false) {
-          beep(1500, 120);
+        // Cancellation dialog opened on website
+        else if (eventName == "cancel_dialog_open") {
+
+          cancelDialogOpen = true;
+
+          Serial.println("Cancellation dialog opened");
+
         }
 
-        Serial.printf("Settings: LED %d%%, volume %d, buzzer %s\n",
-          ledBrightness, buzzerVolume, buzzerEnabled ? "on" : "off");
-      }
+        // Cancellation dialog closed on website
+        else if (eventName == "cancel_dialog_close") {
 
-      // Network Test: reply immediately so the TV can time the round trip
-      else if (eventName == "net_ping") {
+          cancelDialogOpen = false;
 
-        StaticJsonDocument<64> reply;
+          Serial.println("Cancellation dialog closed");
 
-        reply["event"] = "net_pong";
-        reply["id"] = doc["id"];
-
-        String message;
-        serializeJson(reply, message);
-
-        webSocket.sendTXT(message);
-      }
-
-
-
-      // Website can also send an action
-      else if (doc.containsKey("action")) {
-
-        String action = doc["action"].as<String>();
-
-        int index = buttonIndexFromName(action);
-
-        if (index >= 0) {
-
-          sendAction(action);
         }
-      }
 
-      break;
-    }
+        // Website confirms task cancellation
+        else if (eventName == "task_cancel") {
+
+          cancelDialogOpen = false;
+
+          activeTask = -1;
+          currentStep = 0;
+
+          allLEDsOff();
+
+          Serial.println("Task cancelled by user");
+
+        }
+
+
+        // Website changes guided mode
+        else if (eventName == "mode") {
+
+          guidedMode = doc["guided"] | true;
+
+          if (!guidedMode) {
+            allLEDsOff();
+          } else {
+            updateGuidedLED();
+          }
+        }
+
+        // TV settings: LED brightness, buzzer volume and sound mode
+        else if (eventName == "remote_settings") {
+
+          int newBrightness = constrain((int)(doc["brightness"] | ledBrightness), 0, 100);
+
+          buzzerVolume = constrain((int)(doc["volume"] | buzzerVolume), 0, 10);
+          buzzerEnabled = doc["buzzer"] | true;
+          clickSounds = doc["clicks"] | true;
+
+          if (newBrightness != ledBrightness) {
+            ledBrightness = newBrightness;
+            previewBrightness();
+          }
+
+          if (doc["test"] | false) {
+            beep(1500, 120);
+          }
+
+          Serial.printf("Settings: LED %d%%, volume %d, buzzer %s\n",
+                        ledBrightness, buzzerVolume, buzzerEnabled ? "on" : "off");
+        }
+
+        // Network Test: reply immediately so the TV can time the round trip
+        else if (eventName == "net_ping") {
+
+          StaticJsonDocument<64> reply;
+
+          reply["event"] = "net_pong";
+          reply["id"] = doc["id"];
+
+          String message;
+          serializeJson(reply, message);
+
+          webSocket.sendTXT(message);
+        }
+
+
+
+        // Website can also send an action
+        else if (doc.containsKey("action")) {
+
+          String action = doc["action"].as<String>();
+
+          int index = buttonIndexFromName(action);
+
+          if (index >= 0) {
+
+            sendAction(action);
+          }
+        }
+
+        break;
+      }
 
     default:
       break;
@@ -694,6 +739,46 @@ void handleButtonPress(int buttonIndex) {
   // Task guidance
   if (activeTask >= 0) {
 
+    // If cancellation dialog is open,
+    // send navigation buttons to the website
+    if (cancelDialogOpen) {
+
+      // LEFT, RIGHT and OK control the dialog
+      if (
+        buttonIndex == 3 || buttonIndex == 4 || buttonIndex == 5) {
+
+        sendAction(buttonNames[buttonIndex]);
+      }
+
+      // Ignore other buttons while dialog is open
+      return;
+    }
+
+    // Normal BACK handling during an active task
+    if (buttonIndex == 6) {
+
+      int expectedButton =
+        taskSteps[activeTask][currentStep];
+
+      // If BACK is the expected task step,
+      // execute it normally
+      if (
+        currentStep < taskStepCount[activeTask] && expectedButton == buttonIndex) {
+
+        handleTaskButton(buttonIndex);
+
+      }
+
+      // Otherwise send BACK to the website
+      else {
+
+        sendAction("back");
+      }
+
+      return;
+    }
+
+    // Execute normal task buttons
     handleTaskButton(buttonIndex);
     return;
   }
@@ -797,8 +882,7 @@ void setup() {
   webSocket.begin(
     SERVER_IP,
     SERVER_PORT,
-    WS_PATH
-  );
+    WS_PATH);
 
   webSocket.onEvent(webSocketEvent);
 
@@ -807,8 +891,7 @@ void setup() {
   webSocket.enableHeartbeat(
     15000,
     3000,
-    2
-  );
+    2);
 
   Serial.println("Waiting for LitPath website...");
 }
@@ -819,7 +902,7 @@ void loop() {
 
   webSocket.loop();
 
-    if (millis() - lastNetReport > 3000) {
+  if (millis() - lastNetReport > 3000) {
     lastNetReport = millis();
     sendNetworkReport();
   }

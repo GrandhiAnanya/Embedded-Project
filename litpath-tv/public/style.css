@@ -615,3 +615,81 @@ body.contrast .screenbar { color: #fff; }
 @media (prefers-reduced-motion: reduce) {
   * { transition: none !important; animation: none !important; }
 }
+
+
+/* Cancellation confirmation screen */
+
+.cancel-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  background: rgba(0, 0, 0, 0.78);
+  backdrop-filter: blur(6px);
+}
+
+.cancel-dialog {
+  width: 440px;
+  max-width: 85%;
+
+  padding: 35px;
+  border-radius: 22px;
+
+  text-align: center;
+
+  background: #171e2d;
+  border: 2px solid #465575;
+
+  box-shadow: 0 15px 60px rgba(0, 0, 0, 0.6);
+  color: white;
+}
+
+.cancel-dialog h2 {
+  font-size: 30px;
+  margin-bottom: 15px;
+}
+
+.cancel-dialog p {
+  font-size: 18px;
+  color: #cbd5e1;
+}
+
+.cancel-options {
+  display: flex;
+  justify-content: center;
+  gap: 25px;
+  margin: 30px 0;
+}
+
+.cancel-option {
+  min-width: 130px;
+  padding: 15px 25px;
+
+  border-radius: 12px;
+  border: 3px solid transparent;
+
+  background: #30394c;
+  color: white;
+
+  font-size: 20px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.cancel-option.selected {
+  background: #2563eb;
+  border-color: white;
+
+  box-shadow: 0 0 18px rgba(37, 99, 235, 0.8);
+
+  transform: scale(1.08);
+}
+
+.cancel-hint {
+  font-size: 13px !important;
+  color: #94a3b8 !important;
+}

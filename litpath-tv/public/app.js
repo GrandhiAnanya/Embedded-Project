@@ -33,6 +33,8 @@
     menuIndex = 0,
     task = null,
     step = 0,
+    cancelDialog = false,
+    cancelChoice = 0,
     start = 0,
     wrong = 0,
     hints = 0,
@@ -166,6 +168,64 @@
   `;
 
       c.appendChild(ov);
+    }
+    // Render cancellation confirmation screen
+    const oldDialog = $('cancel-dialog');
+
+    if (oldDialog) {
+      oldDialog.remove();
+    }
+
+    if (cancelDialog) {
+      const dialog = document.createElement('div');
+
+      dialog.id = 'cancel-dialog';
+      dialog.className = 'cancel-overlay';
+
+      dialog.innerHTML = `
+    <div class="cancel-dialog">
+      <h2>Cancel current task?</h2>
+
+      <p>
+        Are you sure you want to cancel this task?
+      </p>
+
+      <div class="cancel-options">
+        <button class="cancel-option ${cancelChoice === 0 ? 'selected' : ''
+        }" data-choice="0">
+          YES
+        </button>
+
+        <button class="cancel-option ${cancelChoice === 1 ? 'selected' : ''
+        }" data-choice="1">
+          NO
+        </button>
+      </div>
+
+      <p class="cancel-hint">
+        LEFT / RIGHT to select · OK to confirm
+      </p>
+    </div>
+  `;
+
+      document.body.appendChild(dialog);
+
+      dialog.querySelectorAll('.cancel-option').forEach(button => {
+        button.onclick = () => {
+          cancelChoice = Number(button.dataset.choice);
+
+          if (cancelChoice === 0) {
+            cancelTask();
+          } else {
+            cancelDialog = false;
+            send({
+              event: 'cancel_dialog_close'
+            });
+            render();
+            mirror(task ? task.steps[step] || 'none' : 'none');
+          }
+        };
+      });
     }
 
   }
@@ -491,11 +551,53 @@
     setTimeout(() => $('success').classList.add('hidden'), 3000);
     addLog('local', `task_complete ${id}; ${seconds}s; wrong=${wrong}; hints=${hints}`);
     task = null;
+    cancelDialog = false;
+
+    send({
+      event: 'cancel_dialog_close'
+    });
+
     $('chip').classList.add('hidden');
     stepsRender();
     renderStats();
   }
+  function cancelTask() {
+    if (!task) return;
+
+    cancelDialog = false;
+
+    send({
+      event: 'cancel_dialog_close'
+    });
+
+    const cancelledTask = task.id;
+
+    // Stop the active task
+    task = null;
+    step = 0;
+
+    // Clear task indicators
+    $('chip').classList.add('hidden');
+    $('success').classList.add('hidden');
+
+    // Clear remote LED guidance
+    mirror('none');
+
+    // Reset displayed steps
+    stepsRender();
+
+    // Notify the server
+    send({
+      event: 'task_cancel',
+      task: cancelledTask
+    });
+
+    addLog('local', `task_cancel ${cancelledTask}`);
+
+    render();
+  }
   function action(a, source = 'local') {
+    a = String(a).toLowerCase();
     if (!allowed.includes(a)) {
       addLog('warning', 'Unknown action ignored', true);
       return;
@@ -554,6 +656,59 @@
 
     }
 
+    // Handle remote navigation inside cancellation dialog
+    if (cancelDialog) {
+
+      if (a === 'left' || a === 'right') {
+        cancelChoice = cancelChoice === 0 ? 1 : 0;
+        render();
+      }
+
+      else if (a === 'ok') {
+
+        if (cancelChoice === 0) {
+          cancelTask();
+        }
+
+        else {
+          cancelDialog = false;
+
+          // Tell ESP32 that the dialog has closed
+          send({
+            event: 'cancel_dialog_close'
+          });
+
+          render();
+
+          // Restore the current task's expected button
+          mirror(task ? task.steps[step] || 'none' : 'none');
+        }
+      }
+
+      return;
+    }
+
+    // Open cancellation dialog when BACK is pressed
+    if (
+      task &&
+      step < task.steps.length &&
+      a === 'back' &&
+      task.id !== 'GO_BACK' &&
+      task.steps[step] !== 'back'
+    ) {
+      cancelDialog = true;
+      cancelChoice = 0;
+
+      send({
+        event: 'cancel_dialog_open'
+      });
+
+
+      render();
+
+      return;
+    }
+
     let before = JSON.stringify(state),
       expected = task && task.steps[step];
     if (task && step < task.steps.length && a !== expected) {
@@ -575,17 +730,23 @@
     render();
     TVSettings.sound('click');
     addLog(source, `action ${a}`);
+
     if (task && a === expected) {
       step++;
       stepsRender();
+
       if (step >= task.steps.length) {
-        if (source === 'local' || source === 'demo') complete(task.id, runMode);
-      } else if (demo && guided) mirror(task.steps[step]);
+        complete(task.id, runMode);
+      } else if (demo && guided) {
+        mirror(task.steps[step]);
+      }
+
     } else if (task && demo && source === 'local') {
       state = JSON.parse(before);
       render();
     }
   }
+
   function renderStats() {
     let avg = mode => {
       let a = stats.filter(x => x.mode === mode);
